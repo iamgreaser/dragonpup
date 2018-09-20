@@ -13,8 +13,8 @@ struct Tile
 	uint8_t color;
 };
 
-typedef struct Param Param;
-struct Param
+typedef struct Stat Stat;
+struct Stat
 {
 	int dummy; // TODO!
 };
@@ -23,5 +23,5 @@ typedef struct Block Block;
 struct Block
 {
 	uint16_t width, height;
-	uint8_t *tile_data;
+	struct Tile *tile_data;
 };
