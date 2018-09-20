@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
 	if(!run_tests(use_tap_output))
 	{
-		printf("# UNIT TESTS FAILED - CANNOT CONTINUE\n");
+		//printf("# UNIT TESTS FAILED - CANNOT CONTINUE\n");
 		return 1;
 	}
 
