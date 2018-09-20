@@ -127,6 +127,11 @@ static void TEST_get_tile_char(void)
 	Tile textblue2 = {.type = T_TEXT_BLUE, .color = 0x3F};
 	tap_ok(get_tile_char(&textblue2, NULL, NULL) == '\x3F',
 		"Tile char: Text Blue, 0x3F");
+
+	// Lines need neighbour info.
+	Tile line1 = {.type = T_LINE, .color = 0x0F};
+	tap_ok(get_tile_char(&line1, NULL, NULL) == '\xCE',
+		"Tile char: Line, NULL block");
 }
 
 ////////////////////////////////////////////////////////////////////////////
