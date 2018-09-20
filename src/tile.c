@@ -131,6 +131,58 @@ static void TEST_get_tile_char(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+uint8_t get_tile_color(const Tile *tile, const Param *param)
+{
+	// Text uses the colour for the character.
+	// Thus, it has to get the colour from somewhere.
+	// This tends to be the type itself.
+
+	if(tile->type >= T_TEXT_BLUE && tile->type <= T_TEXT_BLACK)
+	{
+		int color = tile->type - T_TEXT_BLUE;
+		color += 1;
+		color &= 7;
+		// TODO: handle blinking text
+
+		// Move to BG, use white FG
+		color <<= 4;
+		color += 0xF;
+		color &= 0xFF;
+		return color;
+	}
+
+	return tile->color;
+}
+
+static void TEST_get_tile_color(void)
+{
+	Tile player1 = {.type = T_PLAYER, .color = 0x1F};
+	tap_ok(get_tile_color(&player1, NULL) == 0x1F,
+		"Tile color: Player");
+	Tile empty1 = {.type = T_EMPTY, .color = 0x70};
+	tap_ok(get_tile_color(&empty1, NULL) == 0x70,
+		"Tile color: Empty");
+	Tile lion1 = {.type = T_LION, .color = 0x0C};
+	tap_ok(get_tile_color(&lion1, NULL) == 0x0C,
+		"Tile color: Lion Red");
+	Tile lion2 = {.type = T_LION, .color = 0x06};
+	tap_ok(get_tile_color(&lion2, NULL) == 0x06,
+		"Tile color: Lion Brown");
+
+	// Text is just as always fun.
+	Tile textred1 = {.type = T_TEXT_RED, .color = 0x21};
+	tap_ok(get_tile_color(&textred1, NULL) == 0x4F,
+		"Tile color: Text Red, 0x21");
+	Tile textblue1 = {.type = T_TEXT_BLUE, .color = 0x21};
+	tap_ok(get_tile_color(&textblue1, NULL) == 0x1F,
+		"Tile color: Text Blue, 0x21");
+	Tile textblue2 = {.type = T_TEXT_BLUE, .color = 0x3F};
+	tap_ok(get_tile_color(&textblue2, NULL) == 0x1F,
+		"Tile color: Text Blue, 0x3F");
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void tile_tests(void)
 {
 	tap_ok(true, "Tile test hookup check");
@@ -138,5 +190,6 @@ void tile_tests(void)
 	TEST_get_tile_type_from_name();
 	TEST_get_tile_name_from_type();
 	TEST_get_tile_char();
+	TEST_get_tile_color();
 }
 
