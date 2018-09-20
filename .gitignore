@@ -1,0 +1,10 @@
+
+# Compilation results
+bin/
+*.o
+
+# VIM
+.*.sw?
+
+# Various editors
+*~
