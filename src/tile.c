@@ -1,11 +1,12 @@
 #include "common.h"
+#include "board.h"
 #include "tile.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
 tile_type get_tile_type_from_name(const char *name)
 {
-#define XX(t_upname, t_intname, t_code) \
+#define XX(t_upname, t_intname, t_code, t_char, t_color) \
 		if(match_strings_letters_only(name, t_intname)) \
 		{ \
 			return T_##t_upname; \
@@ -48,7 +49,7 @@ const char *get_tile_name_from_type(tile_type type)
 {
 	switch(type)
 	{
-#define XX(t_upname, t_intname, t_code) \
+#define XX(t_upname, t_intname, t_code, t_char, t_color) \
 		case T_##t_upname:\
 			if(t_intname[0] == '\x00') \
 			{ \
@@ -89,11 +90,53 @@ static void TEST_get_tile_name_from_type(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+char get_tile_char(const Tile *tile, const Param *param)
+{
+	// Text uses the colour for the character.
+	if(tile->type >= T_TEXT_BLUE && tile->type <= T_TEXT_BLACK)
+	{
+		return tile->color;
+	}
+
+	// Default switch block coming through!
+	switch(tile->type)
+	{
+#define XX(t_upname, t_intname, t_code, t_char, t_color) \
+		case T_##t_upname:\
+			return t_char;
+#include "tile_table.gen.h"
+#undef XX
+		default:
+			return '\x20'; // Most of these are spaces.
+	}
+}
+
+static void TEST_get_tile_char(void)
+{
+	Tile player1 = {.type = T_PLAYER, .color = 0x1F};
+	tap_ok(get_tile_char(&player1, NULL) == '\x02',
+		"Tile char: Player");
+	Tile empty1 = {.type = T_EMPTY, .color = 0x70};
+	tap_ok(get_tile_char(&empty1, NULL) == '\x20',
+		"Tile char: Empty");
+
+	// Text is always fun.
+	Tile textblue1 = {.type = T_TEXT_BLUE, .color = 0x21};
+	tap_ok(get_tile_char(&textblue1, NULL) == '\x21',
+		"Tile char: Text Blue, 0x21");
+	Tile textblue2 = {.type = T_TEXT_BLUE, .color = 0x3F};
+	tap_ok(get_tile_char(&textblue2, NULL) == '\x3F',
+		"Tile char: Text Blue, 0x3F");
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void tile_tests(void)
 {
 	tap_ok(true, "Tile test hookup check");
 
 	TEST_get_tile_type_from_name();
 	TEST_get_tile_name_from_type();
+	TEST_get_tile_char();
 }
 

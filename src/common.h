@@ -13,6 +13,8 @@
 #define SYM_TO_STR(x) #x
 
 // Stuff everything should have
+#include "types.h"
+
 #include "tests.h"
 #include "utils.h"
 
