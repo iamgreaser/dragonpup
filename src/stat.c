@@ -29,6 +29,20 @@ Stat *new_stat(int x, int y, tile_type type)
 	stat->y = y;
 	stat->cycle = get_stat_default_cycle(type);
 
+	// Step direction
+	switch(type)
+	{
+		case T_DUPLICATOR:
+		case T_BLINK_WALL:
+		case T_TRANSPORTER:
+		case T_PUSHER:
+			// Default to north for now
+			// TODO: verify
+			stat->step_x = 0;
+			stat->step_y = -1;
+			break;
+	}
+
 	return stat;
 }
 
@@ -66,8 +80,8 @@ static void TEST_new_stat(void)
 	tap_ok(stat->x == 4 && stat->y == 3, "Duplicator is at (4, 3)");
 	tap_ok(stat->cycle == 2, "Duplicator cycle is 2");
 	// TODO!
-	//tap_ok(stat->step_x == 0 && stat->step_y == -1,
-	//	"Duplicator step is north");
+	tap_ok(stat->step_x == 0 && stat->step_y == -1,
+		"Duplicator step is north");
 	free_stat(&stat);
 
 }
