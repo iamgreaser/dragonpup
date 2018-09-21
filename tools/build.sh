@@ -12,9 +12,11 @@ fi
 
 echo "dragonpup:"
 cc -DSUPER_ZZT=0 -O1 -g -o bin/dragonpup src/*.c -I src/ && \
-./bin/dragonpup --unit-tests | tap_harness
+./bin/dragonpup --unit-tests | tap_harness && \
+echo "OK!"
 
 echo "super-dragonpup:"
 cc -DSUPER_ZZT=1 -O1 -g -o bin/super-dragonpup src/*.c -I src/ && \
-./bin/super-dragonpup --unit-tests | tap_harness
+./bin/super-dragonpup --unit-tests | tap_harness && \
+echo "OK!"
 
