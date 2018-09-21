@@ -1,6 +1,6 @@
 typedef enum tile_type
 {
-#define XX(t_upname, t_intname, t_code, t_char, t_color) T_##t_upname = t_code,
+#define XX(t_upname, t_intname, t_code, t_char, t_color, t_cycle) T_##t_upname = t_code,
 #include "tile_table.gen.h"
 #undef XX
 
@@ -18,7 +18,7 @@ struct Stat
 {
 	// Real structure
 	uint8_t x, y;
-	int16_t xstep, ystep;
+	int16_t step_x, step_y;
 	int16_t cycle;
 	uint8_t p1, p2, p3;
 	int16_t follower, leader;

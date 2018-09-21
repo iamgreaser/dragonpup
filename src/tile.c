@@ -6,7 +6,7 @@
 
 tile_type get_tile_type_from_name(const char *name)
 {
-#define XX(t_upname, t_intname, t_code, t_char, t_color) \
+#define XX(t_upname, t_intname, t_code, t_char, t_color, t_cycle) \
 		if(match_strings_letters_only(name, t_intname)) \
 		{ \
 			return T_##t_upname; \
@@ -49,7 +49,7 @@ const char *get_tile_name_from_type(tile_type type)
 {
 	switch(type)
 	{
-#define XX(t_upname, t_intname, t_code, t_char, t_color) \
+#define XX(t_upname, t_intname, t_code, t_char, t_color, t_cycle) \
 		case T_##t_upname:\
 			if(t_intname[0] == '\x00') \
 			{ \
@@ -101,7 +101,7 @@ char get_tile_char(const Tile *tile, const Stat *stat, const Block *block)
 	// Default switch block coming through!
 	switch(tile->type)
 	{
-#define XX(t_upname, t_intname, t_code, t_char, t_color) \
+#define XX(t_upname, t_intname, t_code, t_char, t_color, t_cycle) \
 		case T_##t_upname:\
 			return t_char;
 #include "tile_table.gen.h"
