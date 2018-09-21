@@ -16,7 +16,16 @@ struct Tile
 typedef struct Stat Stat;
 struct Stat
 {
-	int dummy; // TODO!
+	// Real structure
+	uint8_t x, y;
+	int16_t xstep, ystep;
+	int16_t cycle;
+	uint8_t p1, p2, p3;
+	int16_t follower, leader;
+	uint8_t under_type, under_color;
+	int16_t code_pc;
+	int16_t code_length;
+	uint8_t *code;
 };
 
 typedef struct Block Block;
