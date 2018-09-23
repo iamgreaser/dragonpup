@@ -62,9 +62,50 @@ static void TEST_new_block(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+tile_type get_block_tile_raw_type(Block *block, int x, int y)
+{
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(x < block->width);
+	assert(y < block->height);
+
+	return block->tile_data[x*block->height + y].type;
+}
+
+void set_block_tile_raw_type(Block *block, int x, int y, tile_type type)
+{
+	// TODO!
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(x < block->width);
+	assert(y < block->height);
+
+	block->tile_data[x*block->height + y].type = type;
+}
+
+static void TEST_getset_block_tile_raw(void)
+{
+	Block *block;
+
+	// Get type in range
+	block = new_block(60, 25);
+	tap_ok(block != NULL, "Create block: (60, 25)");
+	tap_ok(get_block_tile_raw_type(block, 0, 0) == T_EMPTY,
+		"Block at TLC is empty");
+	tap_ok(get_block_tile_raw_type(block, 59, 24) == T_EMPTY,
+		"Block at BRC is empty");
+	set_block_tile_raw_type(block, 0, 0, T_AMMO);
+	tap_ok(get_block_tile_raw_type(block, 0, 0) == T_AMMO,
+		"Block at TLC when set to ammo is now ammo");
+	free_block(&block);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void board_tests(void)
 {
 	tap_ok(true, "Board test hookup check");
 	TEST_new_block();
+	TEST_getset_block_tile_raw();
 }
 
