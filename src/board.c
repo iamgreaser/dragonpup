@@ -62,8 +62,20 @@ static void TEST_new_block(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+static bool coords_in_range_of_block(Block *block, int x, int y)
+{
+	return (x >= 0 && y >= 0
+		&& x < block->width
+		&& y < block->height);
+}
+
 tile_type get_block_tile_raw_type(Block *block, int x, int y)
 {
+	if(!coords_in_range_of_block(block, x, y))
+	{
+		return T_BOARD_EDGE;
+	}
+
 	assert(x >= 0);
 	assert(y >= 0);
 	assert(x < block->width);
@@ -97,6 +109,14 @@ static void TEST_getset_block_tile_raw(void)
 	set_block_tile_raw_type(block, 0, 0, T_AMMO);
 	tap_ok(get_block_tile_raw_type(block, 0, 0) == T_AMMO,
 		"Block at TLC when set to ammo is now ammo");
+	tap_ok(get_block_tile_raw_type(block, -1, 2) == T_BOARD_EDGE,
+		"Block past left border is edge");
+	tap_ok(get_block_tile_raw_type(block, 60, 2) == T_BOARD_EDGE,
+		"Block past right border is edge");
+	tap_ok(get_block_tile_raw_type(block, 2, -1) == T_BOARD_EDGE,
+		"Block past top border is edge");
+	tap_ok(get_block_tile_raw_type(block, 2, 25) == T_BOARD_EDGE,
+		"Block past bottom border is edge");
 	free_block(&block);
 }
 
