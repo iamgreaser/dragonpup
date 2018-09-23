@@ -87,6 +87,11 @@ tile_type get_block_tile_raw_type(Block *block, int x, int y)
 void set_block_tile_raw_type(Block *block, int x, int y, tile_type type)
 {
 	// TODO!
+	if(!coords_in_range_of_block(block, x, y))
+	{
+		return;
+	}
+
 	assert(x >= 0);
 	assert(y >= 0);
 	assert(x < block->width);
@@ -117,6 +122,18 @@ static void TEST_getset_block_tile_raw(void)
 		"Block past top border is edge");
 	tap_ok(get_block_tile_raw_type(block, 2, 25) == T_BOARD_EDGE,
 		"Block past bottom border is edge");
+	set_block_tile_raw_type(block, -1, 2, T_AMMO);
+	set_block_tile_raw_type(block, 60, 2, T_AMMO);
+	set_block_tile_raw_type(block, 2, -1, T_AMMO);
+	set_block_tile_raw_type(block, 2, 25, T_AMMO);
+	tap_ok(get_block_tile_raw_type(block, -1, 2) == T_BOARD_EDGE,
+		"Block past left border after mutation is still edge");
+	tap_ok(get_block_tile_raw_type(block, 60, 2) == T_BOARD_EDGE,
+		"Block past right border after mutation is still edge");
+	tap_ok(get_block_tile_raw_type(block, 2, -1) == T_BOARD_EDGE,
+		"Block past top border after mutation is still edge");
+	tap_ok(get_block_tile_raw_type(block, 2, 25) == T_BOARD_EDGE,
+		"Block past bottom border after mutation is still edge");
 	free_block(&block);
 }
 
