@@ -13,3 +13,8 @@ tile_type get_block_tile_raw_type(Block *block, int x, int y);
 //# set_block_tile_raw_type
 void set_block_tile_raw_type(Block *block, int x, int y, tile_type tile);
 
+//# get_block_tile_raw_color
+uint8_t get_block_tile_raw_color(Block *block, int x, int y);
+
+//# set_block_tile_raw_color
+void set_block_tile_raw_color(Block *block, int x, int y, uint8_t tile);

@@ -15,6 +15,16 @@ Block *new_block(int width, int height)
 
 	block->tile_data = malloc(tile_bytes);
 	memset(block->tile_data, 0, tile_bytes);
+	for(int y = 0; y < block->height; y++)
+	{
+		for(int x = 0; x < block->width; x++)
+		{
+			set_block_tile_raw_type(
+				block, x, y, T_EMPTY);
+			set_block_tile_raw_color(
+				block, x, y, 0x70);
+		}
+	}
 
 	return block;
 }
@@ -69,6 +79,8 @@ static bool coords_in_range_of_block(Block *block, int x, int y)
 		&& y < block->height);
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 tile_type get_block_tile_raw_type(Block *block, int x, int y)
 {
 	if(!coords_in_range_of_block(block, x, y))
@@ -100,7 +112,7 @@ void set_block_tile_raw_type(Block *block, int x, int y, tile_type type)
 	block->tile_data[x*block->height + y].type = type;
 }
 
-static void TEST_getset_block_tile_raw(void)
+static void TEST_getset_block_tile_raw_type(void)
 {
 	Block *block;
 
@@ -139,10 +151,83 @@ static void TEST_getset_block_tile_raw(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+uint8_t get_block_tile_raw_color(Block *block, int x, int y)
+{
+	if(!coords_in_range_of_block(block, x, y))
+	{
+		return 0x10; // sane default, can be changed
+	}
+
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(x < block->width);
+	assert(y < block->height);
+
+	return block->tile_data[x*block->height + y].color;
+}
+
+void set_block_tile_raw_color(Block *block, int x, int y, uint8_t color)
+{
+	// TODO!
+	if(!coords_in_range_of_block(block, x, y))
+	{
+		return;
+	}
+
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(x < block->width);
+	assert(y < block->height);
+
+	block->tile_data[x*block->height + y].color = color;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+static void TEST_getset_block_tile_raw_color(void)
+{
+	Block *block;
+
+	// Get type in range
+	block = new_block(60, 25);
+	tap_ok(block != NULL, "Create block: (60, 25)");
+	tap_ok(get_block_tile_raw_color(block, 0, 0) == 0x70,
+		"Block at TLC is colour 0x70");
+	tap_ok(get_block_tile_raw_color(block, 59, 24) == 0x70,
+		"Block at BRC is colour 0x70");
+	set_block_tile_raw_color(block, 0, 0, 0x3B);
+	tap_ok(get_block_tile_raw_color(block, 0, 0) == 0x3B,
+		"Block at TLC when set to colour 0x3B is now 0x3B");
+	tap_ok(get_block_tile_raw_color(block, -1, 2) == 0x10,
+		"Block past left border is 0x10");
+	tap_ok(get_block_tile_raw_color(block, 60, 2) == 0x10,
+		"Block past right border is 0x10");
+	tap_ok(get_block_tile_raw_color(block, 2, -1) == 0x10,
+		"Block past top border is 0x10");
+	tap_ok(get_block_tile_raw_color(block, 2, 25) == 0x10,
+		"Block past bottom border is 0x10");
+	set_block_tile_raw_color(block, -1, 2, 0x3B);
+	set_block_tile_raw_color(block, 60, 2, 0x3B);
+	set_block_tile_raw_color(block, 2, -1, 0x3B);
+	set_block_tile_raw_color(block, 2, 25, 0x3B);
+	tap_ok(get_block_tile_raw_color(block, -1, 2) == 0x10,
+		"Block past left border after mutation is still 0x10");
+	tap_ok(get_block_tile_raw_color(block, 60, 2) == 0x10,
+		"Block past right border after mutation is still 0x10");
+	tap_ok(get_block_tile_raw_color(block, 2, -1) == 0x10,
+		"Block past top border after mutation is still 0x10");
+	tap_ok(get_block_tile_raw_color(block, 2, 25) == 0x10,
+		"Block past bottom border after mutation is still 0x10");
+	free_block(&block);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void board_tests(void)
 {
 	tap_ok(true, "Board test hookup check");
 	TEST_new_block();
-	TEST_getset_block_tile_raw();
+	TEST_getset_block_tile_raw_type();
+	TEST_getset_block_tile_raw_color();
 }
 
