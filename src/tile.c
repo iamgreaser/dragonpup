@@ -158,7 +158,15 @@ uint8_t get_tile_color(const Tile *tile, const Stat *stat,
 		return color;
 	}
 
-	return tile->color;
+	switch(tile->type)
+	{
+		case T_EMPTY:
+			// Empties are special. They ALWAYS have a black background.
+			return 0x07;
+
+		default:
+			return tile->color;
+	}
 }
 
 static void TEST_get_tile_color(void)
@@ -167,7 +175,7 @@ static void TEST_get_tile_color(void)
 	tap_ok(get_tile_color(&player1, NULL, NULL, 0, 0) == 0x1F,
 		"Tile color: Player");
 	Tile empty1 = {.type = T_EMPTY, .color = 0x70};
-	tap_ok(get_tile_color(&empty1, NULL, NULL, 0, 0) == 0x70,
+	tap_ok(get_tile_color(&empty1, NULL, NULL, 0, 0) == 0x07,
 		"Tile color: Empty");
 	Tile lion1 = {.type = T_LION, .color = 0x0C};
 	tap_ok(get_tile_color(&lion1, NULL, NULL, 0, 0) == 0x0C,
