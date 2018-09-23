@@ -35,6 +35,7 @@ static void TEST_new_block(void)
 	// ZZT-sized board block
 	block = new_block(60, 25);
 	tap_ok(block != NULL, "Create block: (60, 25)");
+
 	free_block(&block);
 	tap_ok(true, "Block can be freed");
 	tap_ok(block == NULL, "Block set to NULL when freed");
@@ -54,5 +55,6 @@ static void TEST_new_block(void)
 void board_tests(void)
 {
 	tap_ok(true, "Board test hookup check");
+	TEST_new_block();
 }
 
