@@ -6,8 +6,15 @@
 Block *new_block(int width, int height)
 {
 	Block *block = malloc(sizeof(Block));
+	size_t tile_count = width * height;
+	size_t tile_bytes = sizeof(Tile) * tile_count;
 
 	memset(block, 0, sizeof(block));
+	block->width = width;
+	block->height = height;
+
+	block->tile_data = malloc(tile_bytes);
+	memset(block->tile_data, 0, tile_bytes);
 
 	return block;
 }
@@ -35,6 +42,8 @@ static void TEST_new_block(void)
 	// ZZT-sized board block
 	block = new_block(60, 25);
 	tap_ok(block != NULL, "Create block: (60, 25)");
+	tap_ok(block->width == 60 && block->height == 25, "Block is (60, 25)");
+	tap_ok(block->tile_data != NULL, "Block has tile data");
 
 	free_block(&block);
 	tap_ok(true, "Block can be freed");
@@ -46,6 +55,7 @@ static void TEST_new_block(void)
 	// Super ZZT-sized board block
 	block = new_block(96, 80);
 	tap_ok(block != NULL, "Create block: (96, 80)");
+	tap_ok(block->width == 96 && block->height == 80, "Block is (96, 80)");
 	free_block(&block);
 
 }
