@@ -37,6 +37,12 @@ struct Block
 	struct Tile *tile_data;
 };
 
+typedef struct Board Board;
+struct Board
+{
+	Block *block;
+};
+
 typedef struct World World;
 struct World
 {
@@ -65,4 +71,6 @@ struct World
 #if SUPER_ZZT
 	int16_t player_stones;
 #endif /* SUPER_ZZT */
+
+	Board **boards;
 };

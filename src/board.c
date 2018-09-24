@@ -3,6 +3,54 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+Board *new_board(void)
+{
+	Board *board = malloc(sizeof(Board));
+
+	memset(board, 0, sizeof(*board));
+
+	return board;
+}
+
+void free_board(Board **pboard)
+{
+	if(*pboard != NULL)
+	{
+#if 0
+		if((*pboard)->tile_data != NULL)
+		{
+			free((*pboard)->block);
+			(*pboard)->block = NULL;
+		}
+#endif
+
+		free(*pboard);
+	}
+
+	*pboard = NULL;
+}
+
+static void TEST_new_board(void)
+{
+	Board *board;
+
+	// ZZT-sized board board
+	board = new_board();
+	tap_ok(board != NULL, "Create board");
+	//tap_ok(board->block != NULL, "Board has block");
+	//tap_ok(board->width == 60 && board->height == 25, "Board is (60, 25)");
+
+	free_board(&board);
+	tap_ok(true, "Board can be freed");
+	tap_ok(board == NULL, "Board set to NULL when freed");
+	free_board(&board);
+	tap_ok(true, "Freeing NULL boards causes no pain");
+	tap_ok(board == NULL, "NULL board stays NULL");
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+
 Block *new_block(int width, int height)
 {
 	Block *block = malloc(sizeof(Block));
