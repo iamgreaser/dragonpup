@@ -34,3 +34,9 @@ struct Block
 	uint16_t width, height;
 	struct Tile *tile_data;
 };
+
+typedef struct World World;
+struct World
+{
+	int board_count;
+};
