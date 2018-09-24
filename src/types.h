@@ -38,5 +38,5 @@ struct Block
 typedef struct World World;
 struct World
 {
-	int board_count;
+	int16_t version_magic;
 };

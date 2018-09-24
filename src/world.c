@@ -9,6 +9,8 @@ World *new_world(void)
 
 	memset(world, 0, sizeof(world));
 
+	world->version_magic = ZZT_WORLD_VERSION;
+
 	return world;
 }
 
@@ -29,6 +31,8 @@ static void TEST_new_world(void)
 	// World creation
 	world = new_world();
 	tap_ok(world != NULL, "Create world");
+	tap_ok(world->version_magic == ZZT_WORLD_VERSION,
+		"World version is correct");
 
 	free_world(&world);
 	tap_ok(true, "World can be freed");
