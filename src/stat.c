@@ -23,7 +23,7 @@ Stat *new_stat(int x, int y, tile_type type)
 {
 	Stat *stat = malloc(sizeof(Stat));
 
-	memset(stat, 0, sizeof(stat));
+	memset(stat, 0, sizeof(*stat));
 
 	stat->x = x;
 	stat->y = y;

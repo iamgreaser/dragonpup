@@ -9,7 +9,7 @@ Block *new_block(int width, int height)
 	size_t tile_count = width * height;
 	size_t tile_bytes = sizeof(Tile) * tile_count;
 
-	memset(block, 0, sizeof(block));
+	memset(block, 0, sizeof(*block));
 	block->width = width;
 	block->height = height;
 
