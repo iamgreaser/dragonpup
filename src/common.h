@@ -24,11 +24,19 @@
 #define ZZT_WORLD_VERSION -2
 #define ZZT_BOARD_WIDTH 96
 #define ZZT_BOARD_HEIGHT 80
+
+#define ZZT_MAX_KEYS 7
+#define ZZT_MAX_FLAGS 16
+
 #else
 #define APP_NAME "DragonPup"
 #define ZZT_WORLD_VERSION -1
 #define ZZT_BOARD_WIDTH 60
 #define ZZT_BOARD_HEIGHT 25
+
+#define ZZT_MAX_KEYS 7
+#define ZZT_MAX_FLAGS 10
+
 #endif
 
 #define APP_VERSION_STRING "vNone"
