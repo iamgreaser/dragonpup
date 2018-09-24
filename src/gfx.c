@@ -1,0 +1,10 @@
+#include "common.h"
+#include "gfx.h"
+
+////////////////////////////////////////////////////////////////////////////
+
+void gfx_tests(void)
+{
+	tap_ok(true, "Graphics test hookup check");
+}
+
