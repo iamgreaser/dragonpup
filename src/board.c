@@ -9,6 +9,10 @@ Board *new_board(void)
 
 	memset(board, 0, sizeof(*board));
 
+	board->block = new_block(
+		ZZT_BOARD_WIDTH,
+		ZZT_BOARD_HEIGHT);
+
 	return board;
 }
 
@@ -16,13 +20,11 @@ void free_board(Board **pboard)
 {
 	if(*pboard != NULL)
 	{
-#if 0
-		if((*pboard)->tile_data != NULL)
+		if((*pboard)->block != NULL)
 		{
 			free((*pboard)->block);
 			(*pboard)->block = NULL;
 		}
-#endif
 
 		free(*pboard);
 	}
@@ -37,8 +39,12 @@ static void TEST_new_board(void)
 	// ZZT-sized board board
 	board = new_board();
 	tap_ok(board != NULL, "Create board");
-	//tap_ok(board->block != NULL, "Board has block");
-	//tap_ok(board->width == 60 && board->height == 25, "Board is (60, 25)");
+	tap_ok(board->block != NULL, "Board has block");
+	assert(board->block != NULL);
+	tap_ok(board->block->width == ZZT_BOARD_WIDTH,
+		"Board width");
+	tap_ok(board->block->height == ZZT_BOARD_HEIGHT,
+		"Board height");
 
 	free_board(&board);
 	tap_ok(true, "Board can be freed");
@@ -277,5 +283,6 @@ void board_tests(void)
 	TEST_new_block();
 	TEST_getset_block_tile_raw_type();
 	TEST_getset_block_tile_raw_color();
+	TEST_new_board();
 }
 
