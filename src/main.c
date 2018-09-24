@@ -26,7 +26,10 @@ int main(int argc, char *argv[])
 
 	if(!run_tests(quit_after_tests))
 	{
-		//printf("# UNIT TESTS FAILED - CANNOT CONTINUE\n");
+		if(!quit_after_tests)
+		{
+			printf("# UNIT TESTS FAILED - CANNOT CONTINUE\n");
+		}
 		return 1;
 	}
 
