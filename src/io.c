@@ -27,7 +27,7 @@ struct IoStream
 
 ////////////////////////////////////////////////////////////////////////////
 
-void io_close_file(IoStream **pstream)
+void io_close(IoStream **pstream)
 {
 	if((*pstream) == NULL)
 	{
@@ -70,9 +70,9 @@ static void TEST_io_open_shared_buffer_for_reading(void)
 	stream = io_open_shared_buffer_for_reading(
 		"Hello World!", 12);
 	tap_ok(stream != NULL, "Shared buffer read I/O opened");
-	io_close_file(&stream);
+	io_close(&stream);
 	tap_ok(stream == NULL, "Shared buffer read I/O closed");
-	io_close_file(&stream);
+	io_close(&stream);
 	tap_ok(stream == NULL, "Shared buffer read I/O double close safe");
 }
 
