@@ -99,3 +99,6 @@ struct World
 
 	Board **boards;
 };
+
+#define IOSTREAM_ERROR_GENERIC -1
+typedef struct IoStream IoStream;

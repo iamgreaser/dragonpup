@@ -55,6 +55,7 @@
 // All test cases go here
 void board_tests(void);
 void gfx_tests(void);
+void io_tests(void);
 void stat_tests(void);
 void tile_tests(void);
 void world_tests(void);
@@ -64,6 +65,7 @@ void world_tests(void);
 	\
 	board_tests(); \
 	gfx_tests(); \
+	io_tests(); \
 	stat_tests(); \
 	tile_tests(); \
 	world_tests(); \
