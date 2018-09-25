@@ -101,4 +101,5 @@ struct World
 };
 
 #define IOSTREAM_ERROR_GENERIC -1
+#define IOSTREAM_ERROR_ALREADY_CLOSED -2
 typedef struct IoStream IoStream;
