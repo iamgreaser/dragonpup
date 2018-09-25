@@ -93,10 +93,10 @@ static void TEST_new_board(void)
 #if SUPER_ZZT
 	tap_ok(board->block->stats[0]->x == 47, "Default player X correct");
 	tap_ok(board->block->stats[0]->y == 39, "Default player Y correct");
-#else
+#else /* !SUPER_ZZT */
 	tap_ok(board->block->stats[0]->x == 29, "Default player X correct");
 	tap_ok(board->block->stats[0]->y == 11, "Default player Y correct");
-#endif
+#endif /* SUPER_ZZT */
 
 	free_board(&board);
 	tap_ok(true, "Board can be freed");
