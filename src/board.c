@@ -14,6 +14,14 @@ Board *new_board(void)
 		ZZT_BOARD_WIDTH,
 		ZZT_BOARD_HEIGHT);
 
+	int player_x = ZZT_BOARD_WIDTH / 2 - 1;
+	int player_y = ZZT_BOARD_HEIGHT / 2 - 1;
+
+	set_block_tile_raw_type(
+		board->block, player_x, player_y, T_PLAYER);
+	add_stat_to_block(
+		board->block, player_x, player_y);
+
 	return board;
 }
 
@@ -47,8 +55,6 @@ static void TEST_new_board(void)
 	tap_ok(board->block->height == ZZT_BOARD_HEIGHT,
 		"Board height");
 
-#if 0
-	// FIXME: Not ready for this yet!
 	tap_ok(board->block->stat_count == 1, "Board has 1 stat");
 	tap_ok(board->block->stats != NULL, "Stats array exists");
 	assert(board->block->stats != NULL);
@@ -57,12 +63,11 @@ static void TEST_new_board(void)
 	// ZZT: 29, 11
 	// Super ZZT: 47, 39
 #if SUPER_ZZT
-	tap_ok(board->stats[0]->x == 47, "Default player X correct");
-	tap_ok(board->stats[0]->y == 39, "Default player Y correct");
+	tap_ok(board->block->stats[0]->x == 47, "Default player X correct");
+	tap_ok(board->block->stats[0]->y == 39, "Default player Y correct");
 #else
-	tap_ok(board->stats[0]->x == 29, "Default player X correct");
-	tap_ok(board->stats[0]->y == 11, "Default player Y correct");
-#endif
+	tap_ok(board->block->stats[0]->x == 29, "Default player X correct");
+	tap_ok(board->block->stats[0]->y == 11, "Default player Y correct");
 #endif
 
 	free_board(&board);
