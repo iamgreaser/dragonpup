@@ -10,6 +10,10 @@ Board *new_board(void)
 
 	memset(board, 0, sizeof(*board));
 
+	board->max_player_shots = 255;
+	strncpy(board->name.dat, "Untitled", sizeof(board->name.dat)-1);
+	board->name.len = strlen(board->name.dat);
+
 	board->block = new_block(
 		ZZT_BOARD_WIDTH,
 		ZZT_BOARD_HEIGHT);
@@ -54,6 +58,30 @@ static void TEST_new_board(void)
 		"Board width");
 	tap_ok(board->block->height == ZZT_BOARD_HEIGHT,
 		"Board height");
+
+	tap_ok(!strcmp(board->name.dat, "Untitled"),
+		"New board name contents");
+	tap_ok(board->name.len == strlen(board->name.dat),
+		"New board name length");
+	tap_ok(board->max_player_shots == 255,
+		"New board player shots");
+
+#if !SUPER_ZZT
+	tap_ok(board->is_dark == 0,
+		"New board is not dark");
+#endif /* !SUPER_ZZT */
+	for(int i = 0; i < ZZT_BOARD_EXITS; i++)
+	{
+		tap_ok(board->exits[i] == 0,
+			"New board exits are empty");
+	}
+	tap_ok(board->restart_on_zap == 0,
+		"New board does not restart on zap");
+#if SUPER_ZZT
+	// TODO: camera_x, camera_y
+#endif /* SUPER_ZZT */
+	tap_ok(board->time_limit == 0,
+		"New board has no time limit");
 
 	tap_ok(board->block->stat_count == 1, "Board has 1 stat");
 	tap_ok(board->block->stats != NULL, "Stats array exists");

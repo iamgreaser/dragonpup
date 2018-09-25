@@ -7,6 +7,8 @@ typedef enum tile_type
 } tile_type;
 
 typedef struct { uint8_t len; uint8_t dat[20+1]; } pstring20;
+typedef struct { uint8_t len; uint8_t dat[50+1]; } pstring50;
+typedef struct { uint8_t len; uint8_t dat[60+1]; } pstring60;
 
 typedef struct Tile Tile;
 struct Tile
@@ -44,6 +46,26 @@ typedef struct Board Board;
 struct Board
 {
 	Block *block;
+
+#if SUPER_ZZT
+	pstring60 name;
+#else /* !SUPER_ZZT */
+	pstring50 name;
+#endif /* SUPER_ZZT */
+
+	uint8_t max_player_shots;
+#if !SUPER_ZZT
+	uint8_t is_dark;
+#endif /* !SUPER_ZZT */
+	uint8_t exits[ZZT_BOARD_EXITS]; // N, S, W, E
+	uint8_t restart_on_zap;
+	uint8_t player_enter_x;
+	uint8_t player_enter_y;
+#if SUPER_ZZT
+	int16_t camera_x;
+	int16_t camera_y;
+#endif /* SUPER_ZZT */
+	int16_t time_limit;
 };
 
 typedef struct World World;

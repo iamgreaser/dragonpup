@@ -39,6 +39,8 @@
 
 #endif
 
+#define ZZT_BOARD_EXITS 4
+
 #define APP_VERSION_STRING "vNone"
 
 // Helpers
