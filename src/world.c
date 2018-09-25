@@ -1,5 +1,6 @@
 #include "common.h"
 #include "world.h"
+#include "board.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -20,6 +21,13 @@ World *new_world(void)
 	world->player_stones = -1; // ?
 #endif /* SUPER_ZZT */
 
+	world->board_count = 1;
+	world->boards = malloc(sizeof(Board *) * world->board_count);
+	for(int i = 0; i < world->board_count; i++)
+	{
+		world->boards[i] = new_board();
+	}
+
 	return world;
 }
 
@@ -27,6 +35,13 @@ void free_world(World **pworld)
 {
 	if(*pworld != NULL)
 	{
+		assert((*pworld)->boards != NULL);
+
+		for(int i = 0; i < (*pworld)->board_count; i++)
+		{
+			free_board(&((*pworld)->boards[i]));
+		}
+
 		free(*pworld);
 	}
 
@@ -90,6 +105,14 @@ static void TEST_new_world(void)
 	tap_ok(world->player_stones == -1,
 		"New world stones");
 #endif /* SUPER_ZZT */
+
+	tap_ok(world->board_count == 1,
+		"World has 1 board");
+	tap_ok(world->boards != NULL,
+		"World has a board array");
+	assert(world->boards != NULL);
+	tap_ok(world->boards[0] != NULL,
+		"World board 0 exists");
 
 	free_world(&world);
 	tap_ok(true, "World can be freed");
