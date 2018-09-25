@@ -15,6 +15,7 @@ struct Tile
 	uint8_t color;
 };
 
+#define STAT_ERROR -1
 typedef struct Stat Stat;
 struct Stat
 {
@@ -35,6 +36,8 @@ struct Block
 {
 	uint16_t width, height;
 	struct Tile *tile_data;
+	int16_t stat_count;
+	Stat **stats;
 };
 
 typedef struct Board Board;

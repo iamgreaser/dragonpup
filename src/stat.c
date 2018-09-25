@@ -93,4 +93,3 @@ void stat_tests(void)
 	tap_ok(true, "Stat test hookup check");
 	TEST_new_stat();
 }
-

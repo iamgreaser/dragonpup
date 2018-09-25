@@ -27,3 +27,9 @@ uint8_t get_block_tile_raw_color(Block *block, int x, int y);
 
 //# set_block_tile_raw_color
 void set_block_tile_raw_color(Block *block, int x, int y, uint8_t tile);
+
+//# add_stat_to_block
+//#
+//# Returns an index into the stat array of the block if successful.
+//# Returns STAT_ERROR on failure.
+int add_stat_to_block(Block *block, int x, int y);

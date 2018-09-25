@@ -1,5 +1,6 @@
 #include "common.h"
 #include "board.h"
+#include "stat.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +47,24 @@ static void TEST_new_board(void)
 	tap_ok(board->block->height == ZZT_BOARD_HEIGHT,
 		"Board height");
 
+#if 0
+	// FIXME: Not ready for this yet!
+	tap_ok(board->block->stat_count == 1, "Board has 1 stat");
+	tap_ok(board->block->stats != NULL, "Stats array exists");
+	assert(board->block->stats != NULL);
+
+	// Default player positions from editor:
+	// ZZT: 29, 11
+	// Super ZZT: 47, 39
+#if SUPER_ZZT
+	tap_ok(board->stats[0]->x == 47, "Default player X correct");
+	tap_ok(board->stats[0]->y == 39, "Default player Y correct");
+#else
+	tap_ok(board->stats[0]->x == 29, "Default player X correct");
+	tap_ok(board->stats[0]->y == 11, "Default player Y correct");
+#endif
+#endif
+
 	free_board(&board);
 	tap_ok(true, "Board can be freed");
 	tap_ok(board == NULL, "Board set to NULL when freed");
@@ -91,6 +110,18 @@ void free_block(Block **pblock)
 		{
 			free((*pblock)->tile_data);
 			(*pblock)->tile_data = NULL;
+		}
+
+		if((*pblock)->stats != NULL)
+		{
+			for(int i = 0; i < (*pblock)->stat_count; i++)
+			{
+				free_stat(&((*pblock)->stats[i]));
+			}
+
+			free((*pblock)->stats);
+			(*pblock)->stats = NULL;
+			(*pblock)->stat_count = 0;
 		}
 
 		free(*pblock);
@@ -277,12 +308,81 @@ static void TEST_getset_block_tile_raw_color(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+int add_stat_to_block(Block *block, int x, int y)
+{
+	int sidx = block->stat_count;
+
+	block->stat_count += 1;
+	block->stats = realloc(
+		block->stats,
+		sizeof(block->stats[0]) * block->stat_count);
+	block->stats[sidx] = new_stat(
+		x, y,
+		get_block_tile_raw_type(block, x, y));
+
+	return sidx;
+}
+
+void TEST_add_stat_to_block(void)
+{
+	int sidx0, sidx1;
+	Block *block;
+	Stat *stat0, *stat1;
+
+	// Add one stat
+	block = new_block(3, 3);
+	assert(block != NULL);
+	set_block_tile_raw_type(block, 2, 1, T_PLAYER);
+	tap_ok(block->stat_count == 0,
+		"New blocks have no stats");
+	tap_ok(block->stats == NULL,
+		"If there are no stats, there is no stat array");
+	sidx0 = add_stat_to_block(block, 2, 1);
+	tap_ok(sidx0 == 0,
+		"First stat is at index 0");
+	tap_ok(block->stat_count == 1,
+		"After adding a stat it must be there");
+	tap_ok(block->stats != NULL,
+		"If there are stats, there is a stat array");
+	assert(block->stats != NULL);
+	stat0 = block->stats[sidx0];
+	tap_ok(stat0 != NULL,
+		"Stat 0 must be in the array");
+	assert(stat0 != NULL);
+	tap_ok(stat0->x == 2 && stat0->y == 1,
+		"Stat 0 must be at its given location of (2, 1)");
+
+	// Add another stat
+	set_block_tile_raw_type(block, 0, 1, T_LION);
+	sidx1 = add_stat_to_block(block, 0, 1);
+	tap_ok(sidx1 == 1,
+		"Second stat is at index 1");
+	tap_ok(block->stat_count == 2,
+		"After adding the second stat it must be there");
+	tap_ok(block->stats != NULL,
+		"We must still have a stat array");
+	assert(block->stats != NULL);
+	stat1 = block->stats[sidx1];
+	tap_ok(stat1 != NULL,
+		"Stat 1 must be in the array");
+	assert(stat1 != NULL);
+	tap_ok(stat0 == block->stats[sidx0],
+		"Stat 0 must still be Stat 0");
+	tap_ok(stat1->x == 0 && stat1->y == 1,
+		"Stat 1 must be at its given location of (0, 1)");
+
+	free_block(&block);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void board_tests(void)
 {
 	tap_ok(true, "Board test hookup check");
 	TEST_new_block();
 	TEST_getset_block_tile_raw_type();
 	TEST_getset_block_tile_raw_color();
+	TEST_add_stat_to_block();
 	TEST_new_board();
 }
 
