@@ -58,6 +58,40 @@ ssize_t io_read(IoStream *stream, void *buf, size_t bytes)
 	return stream->driver->read(stream, buf, bytes);
 }
 
+int io_read_u8(IoStream *stream)
+{
+	uint8_t buf[1];
+	ssize_t result = io_read(stream, buf, sizeof(buf));
+
+	if(result == 1)
+	{
+		return ((int)(buf[0]));
+	}
+	else
+	{
+		return IO_PARSE_FAILURE;
+	}
+}
+
+int io_read_s16le(IoStream *stream)
+{
+	uint8_t buf[2];
+	ssize_t result = io_read(stream, buf, sizeof(buf));
+
+	if(result == 2)
+	{
+		int v0 = buf[0];
+		int v1 = buf[1];
+		int vx = v0 | (v1<<8);
+		vx = (int)(int16_t)(uint16_t)vx;
+		return vx;
+	}
+	else
+	{
+		return IO_PARSE_FAILURE;
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 static ssize_t shared_buffer_io_read(IoStream *stream, void *buf, size_t bytes)
@@ -141,6 +175,29 @@ static void TEST_io_open_shared_buffer_for_reading(void)
 	tap_ok(stream == NULL, "Shared buffer read I/O double close safe");
 }
 
+static void TEST_io_read_sized(void)
+{
+	IoStream *stream = io_open_shared_buffer_for_reading(
+		"\x05\x01\x00\xFA\xFE\xFF", 6);
+	tap_ok(stream != NULL, "Shared buffer read I/O opened");
+
+	tap_ok(io_read_u8(stream) == 5,
+		"U8 read MSB clear");
+	tap_ok(io_read_s16le(stream) == 1,
+		"S16LE read MSB clear");
+	tap_ok(io_read_u8(stream) == 0xFA,
+		"U8 read MSB set");
+	tap_ok(io_read_s16le(stream) == -2,
+		"S16LE read MSB set");
+	tap_ok(io_read_u8(stream) == IO_PARSE_FAILURE,
+		"U8 read EOF");
+	tap_ok(io_read_s16le(stream) == IO_PARSE_FAILURE,
+		"S16LE read EOF");
+
+	io_close(&stream);
+	tap_ok(stream == NULL, "Shared buffer read I/O closed");
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void io_tests(void)
@@ -148,4 +205,5 @@ void io_tests(void)
 	tap_ok(true, "I/O test hookup check");
 
 	TEST_io_open_shared_buffer_for_reading();
+	TEST_io_read_sized();
 }
