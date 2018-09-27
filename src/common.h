@@ -54,6 +54,7 @@
 
 // All test cases go here
 void board_tests(void);
+void block_tests(void);
 void gfx_tests(void);
 void io_tests(void);
 void stat_tests(void);
@@ -63,6 +64,7 @@ void world_tests(void);
 #define ALL_TEST_CASES \
 	tests_tests(); \
 	\
+	block_tests(); \
 	board_tests(); \
 	gfx_tests(); \
 	io_tests(); \
