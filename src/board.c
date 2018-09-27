@@ -1,6 +1,7 @@
 #include "common.h"
 #include "board.h"
 #include "stat.h"
+#include "io.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -77,6 +78,12 @@ static void TEST_new_board(void)
 	}
 	tap_ok(board->restart_on_zap == 0,
 		"New board does not restart on zap");
+#if !SUPER_ZZT
+	tap_ok(board->message.len == 0,
+		"New board has no message");
+	tap_ok(board->message.len == strlen(board->message.dat),
+		"New board message length");
+#endif /* !SUPER_ZZT */
 #if SUPER_ZZT
 	// TODO: camera_x, camera_y
 #endif /* SUPER_ZZT */
