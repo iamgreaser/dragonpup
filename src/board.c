@@ -169,6 +169,15 @@ Board *read_board(IoStream *stream)
 		rle_count &= 0xFF;
 	}
 
+	board->max_player_shots = io_read_u8(substream);
+#if !SUPER_ZZT
+	board->is_dark = io_read_u8(substream);
+#endif
+	for(int i = 0; i < 4; i++)
+	{
+		board->exits[i] = io_read_u8(substream);
+	}
+	board->restart_on_zap = io_read_u8(substream);
 	// TODO: More stuff
 
 	//
@@ -250,7 +259,7 @@ static void TEST_read_board(void)
 #if !SUPER_ZZT
 		0, // Is dark?
 #endif /* !SUPER_ZZT */
-		0, 0, 0, 0, // Exits (N, S, W, E)
+		2, 3, 4, 5, // Exits (N, S, W, E)
 		0, // Restart on zap?
 
 #if !SUPER_ZZT
@@ -264,7 +273,7 @@ static void TEST_read_board(void)
 		0, 0, 0, 0, 0, 0, 0, 0,
 #endif /* !SUPER_ZZT */
 
-		1, 1, // Player enter x, y
+		3, 1, // Player enter x, y
 #if SUPER_ZZT
 		0, 0, // Camera x, y
 #endif /* SUPER_ZZT */
@@ -344,6 +353,19 @@ static void TEST_read_board(void)
 	tap_ok(get_block_tile_raw_type(board->block,
 		ZZT_BOARD_WIDTH-1, ZZT_BOARD_HEIGHT-1) == T_EMPTY,
 		"Read board tile (W-1, H-1) is empty");
+
+	tap_ok(board->max_player_shots == 255,
+		"Read board max player shots");
+#if !SUPER_ZZT
+	tap_ok(board->is_dark == 0,
+		"Read board darkness");
+#endif /* !SUPER_ZZT */
+	for(int i = 0; i < ZZT_BOARD_EXITS; i++)
+	{
+		tap_ok(board->exits[i] == 2+i, "Read board exit");
+	}
+	tap_ok(board->restart_on_zap == 0, "Read board restart on zap");
+
 	// TODO: get this working
 	//tap_ok(board->block->stat_count == 1,
 	//	"Read board has 1 stat");
