@@ -208,6 +208,19 @@ Board *read_board(IoStream *stream)
 	}
 
 	// TODO: More stuff
+	int raw_stat_count = io_read_s16le(substream);
+	assert(raw_stat_count >= 0);
+	int stat_count = raw_stat_count + 1;
+	for(int i = 0; i < stat_count; i++)
+	{
+		int stat_x = io_read_u8(substream);
+		int stat_y = io_read_u8(substream);
+		int sidx = add_stat_to_block(board->block,
+			stat_x - 1, stat_y - 1);
+		assert(sidx == i);
+		Stat *stat = board->block->stats[sidx];
+		assert(stat != NULL);
+	}
 
 	//
 	// Clean up substream
@@ -418,9 +431,39 @@ static void TEST_read_board(void)
 	tap_ok(board->time_limit == 0x400,
 		"Read board time limit");
 
-	// TODO: get this working
-	//tap_ok(board->block->stat_count == 1,
-	//	"Read board has 1 stat");
+	tap_ok(board->block->stat_count == 1,
+		"Read board has 1 stat");
+	tap_ok(board->block->stats != NULL,
+		"Read board has stat array");
+	assert(board->block->stats != NULL);
+	assert(board->block->stat_count > 0);
+
+	// Stat 0: Player
+	tap_ok(board->block->stats[0]->x == 2,
+		"Read board stat 0 X");
+	tap_ok(board->block->stats[0]->y == 0,
+		"Read board stat 0 Y");
+
+	// TODO: get these working
+	/*
+	// Stat 0: Player
+	0, 0, // Step x, y
+	1, 0, // Cycle
+	0, 0, 0, // P1, P2, P3
+	255, 255, // Follower
+	255, 255, // Leader
+	T_EMPTY, // Under ID
+	0x70, // Under colour
+
+	0,0,0,0, // (pointer ignored at load time)
+	0,0, // Current instruction
+	3,0, // Code length
+
+	// Super ZZT padding
+
+	// Code
+	'@', 'h', 'i',
+	*/
 
 	free_board(&board);
 	tap_ok(board == NULL, "Freed read board");
