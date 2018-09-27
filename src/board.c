@@ -113,6 +113,195 @@ static void TEST_new_board(void)
 	tap_ok(board == NULL, "NULL board stays NULL");
 }
 
+////////////////////////////////////////////////////////////////////////////
+
+Board *read_board(IoStream *stream)
+{
+	Board *board = malloc(sizeof(Board));
+
+	memset(board, 0, sizeof(*board));
+
+	board->block = new_block(
+		ZZT_BOARD_WIDTH,
+		ZZT_BOARD_HEIGHT);
+
+	ssize_t board_length = io_read_s16le(stream);
+
+	assert(board_length >= 0);
+	// ZZT engine limit
+	assert(board_length <= 20000);
+
+	// Form substream
+	uint8_t *subbuf = malloc(board_length);
+	ssize_t subbuf_len = io_read(stream, subbuf, board_length);
+	assert(subbuf_len >= 0);
+	IoStream *substream = io_open_shared_buffer_for_reading(
+		subbuf, subbuf_len);
+
+	//
+	// Now start reading from it!
+	//
+
+	board->name.len = io_read_u8(substream);
+	io_read(substream, board->name.dat, sizeof(board->name.dat)-1);
+	if(board->name.len >= sizeof(board->name.dat)-1)
+	{
+		board->name.len = sizeof(board->name.dat)-1;
+	}
+	board->name.dat[board->name.len] = 0;
+
+	// TODO: More stuff
+
+	//
+	// Clean up substream
+	//
+	io_close(&substream);
+	free(subbuf); subbuf = NULL;
+
+	return board;
+}
+
+static void TEST_read_board(void)
+{
+	uint8_t fixture[] = {
+		0x00, 0x00, // Board size (to be filled in)
+
+		// Board name
+		5,
+		'B', 'O', 'A', 'R', 'D', 'S', 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+#if SUPER_ZZT
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+#endif /* SUPER_ZZT */
+
+		// Tiles:
+		// Tile 1: Player
+		1,   T_PLAYER, 0x1F,
+		// Remainder is empty
+#if SUPER_ZZT
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		224, T_EMPTY, 0x70,
+#else
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		255, T_EMPTY, 0x70,
+		29,  T_EMPTY, 0x70,
+#endif /* SUPER_ZZT */
+
+		255, // Max player shots
+#if !SUPER_ZZT
+		0, // Is dark?
+#endif /* !SUPER_ZZT */
+		0, 0, 0, 0, // Exits (N, S, W, E)
+		0, // Restart on zap?
+
+#if !SUPER_ZZT
+		// MESSAGE - TODO
+		7,
+		'M', 'E', 'S', 'S', 'A', 'G', 'E', 'S', 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+#endif /* !SUPER_ZZT */
+
+		1, 1, // Player enter x, y
+#if SUPER_ZZT
+		0, 0, // Camera x, y
+#endif /* SUPER_ZZT */
+
+		0, 0, // Time limit
+		// Padding
+#if SUPER_ZZT
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+#else /* !SUPER_ZZT */
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+#endif /* SUPER_ZZT */
+
+		0,0, // Stat element count
+
+		// Stat 0: Player
+		1, 1, // Location x, y
+		0, 0, // Step x, y
+		1, 0, // Cycle
+		0, 0, 0, // P1, P2, P3
+		255, 255, // Follower
+		255, 255, // Leader
+		T_EMPTY, // Under ID
+		0x70, // Under colour
+
+		0,0,0,0, // (pointer ignored at load time)
+		0,0, // Current instruction
+		3,0, // Code length
+
+#if !SUPER_ZZT
+		// More padding
+		0,0,0,0,0,0,0,0,
+#endif /* !SUPER_ZZT */
+
+		// Code
+		'@', 'h', 'i',
+	};
+
+	// Fill in length
+	fixture[0] = 0xFF & (sizeof(fixture));
+	fixture[1] = 0xFF & (sizeof(fixture) >> 8);
+
+	IoStream *stream = io_open_shared_buffer_for_reading(
+		fixture, sizeof(fixture));
+	assert(stream != NULL);
+	Board *board = read_board(stream);
+	tap_ok(board != NULL, "Read a board");
+	io_close(&stream);
+	tap_ok(stream == NULL, "Freed I/O stream");
+
+	tap_ok(!strcmp(board->name.dat, "BOARD"),
+		"Read board name contents");
+	tap_ok(board->name.len == strlen(board->name.dat),
+		"Read board name length");
+
+	// TODO: get this working
+	//tap_ok(board->block->stat_count == 1,
+	//	"Read board has 1 stat");
+
+	free_board(&board);
+	tap_ok(board == NULL, "Freed read board");
+}
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -423,6 +612,8 @@ void board_tests(void)
 	TEST_getset_block_tile_raw_type();
 	TEST_getset_block_tile_raw_color();
 	TEST_add_stat_to_block();
+
 	TEST_new_board();
+	TEST_read_board();
 }
 
