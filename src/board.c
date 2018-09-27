@@ -151,7 +151,6 @@ Board *read_board(IoStream *stream)
 	}
 	board->name.dat[board->name.len] = 0;
 
-#if 1
 	int rle_count = 0;
 	int rle_type = 0;
 	int rle_color = 0;
@@ -169,7 +168,6 @@ Board *read_board(IoStream *stream)
 		rle_count--;
 		rle_count &= 0xFF;
 	}
-#endif
 
 	// TODO: More stuff
 
