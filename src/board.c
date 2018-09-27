@@ -330,7 +330,8 @@ static void TEST_read_board(void)
 
 		// Stat 0: Player
 		3, 1, // Location x, y
-		0, 0, // Step x, y
+		0, 0, // Step x
+		0, 0, // Step y
 		1, 0, // Cycle
 		0, 0, 0, // P1, P2, P3
 		255, 255, // Follower
@@ -441,24 +442,33 @@ static void TEST_read_board(void)
 		"Read board stat 0 X");
 	tap_ok(board->block->stats[0]->y == 0,
 		"Read board stat 0 Y");
+	tap_ok(board->block->stats[0]->step_x == 0,
+		"Read board stat 0 step X");
+	tap_ok(board->block->stats[0]->step_y == 0,
+		"Read board stat 0 step Y");
+	tap_ok(board->block->stats[0]->cycle == 1,
+		"Read board stat 0 cycle");
+	tap_ok(board->block->stats[0]->p1 == 0,
+		"Read board stat 0 P1");
+	tap_ok(board->block->stats[0]->p2 == 0,
+		"Read board stat 0 P2");
+	tap_ok(board->block->stats[0]->p3 == 0,
+		"Read board stat 0 P3");
+	tap_ok(board->block->stats[0]->follower == -1,
+		"Read board stat 0 follower");
+	tap_ok(board->block->stats[0]->leader == -1,
+		"Read board stat 0 leader");
+	tap_ok(board->block->stats[0]->under_type == T_EMPTY,
+		"Read board stat 0 under type");
+	tap_ok(board->block->stats[0]->under_color == 0x70,
+		"Read board stat 0 under colour");
+	tap_ok(board->block->stats[0]->code_pc == 0,
+		"Read board stat 0 code PC");
+	tap_ok(board->block->stats[0]->code_length == 3,
+		"Read board stat 0 code length");
 
 	// TODO: get these working
 	/*
-	// Stat 0: Player
-	0, 0, // Step x, y
-	1, 0, // Cycle
-	0, 0, 0, // P1, P2, P3
-	255, 255, // Follower
-	255, 255, // Leader
-	T_EMPTY, // Under ID
-	0x70, // Under colour
-
-	0,0,0,0, // (pointer ignored at load time)
-	0,0, // Current instruction
-	3,0, // Code length
-
-	// Super ZZT padding
-
 	// Code
 	'@', 'h', 'i',
 	*/

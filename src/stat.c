@@ -96,6 +96,24 @@ Stat *read_stat(IoStream *stream)
 
 	stat->x = io_read_u8(stream) - 1;
 	stat->y = io_read_u8(stream) - 1;
+	stat->step_x = io_read_s16le(stream);
+	stat->step_y = io_read_s16le(stream);
+	stat->cycle = io_read_s16le(stream);
+	stat->p1 = io_read_u8(stream);
+	stat->p2 = io_read_u8(stream);
+	stat->p3 = io_read_u8(stream);
+	stat->follower = io_read_s16le(stream);
+	stat->leader = io_read_s16le(stream);
+	stat->under_type = io_read_u8(stream);
+	stat->under_color = io_read_u8(stream);
+
+	// Skip runtime pointer
+	io_read_s16le(stream); io_read_s16le(stream);
+
+	// Code
+	stat->code_pc = io_read_s16le(stream);
+	stat->code_length = io_read_s16le(stream);
+	// TODO: load actual code
 
 	return stat;
 }
