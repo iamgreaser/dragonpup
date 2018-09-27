@@ -178,6 +178,17 @@ Board *read_board(IoStream *stream)
 		board->exits[i] = io_read_u8(substream);
 	}
 	board->restart_on_zap = io_read_u8(substream);
+
+#if !SUPER_ZZT
+	board->message.len = io_read_u8(substream);
+	io_read(substream, board->message.dat, sizeof(board->message.dat)-1);
+	if(board->message.len >= sizeof(board->message.dat)-1)
+	{
+		board->message.len = sizeof(board->message.dat)-1;
+	}
+	board->message.dat[board->message.len] = 0;
+#endif /* !SUPER_ZZT */
+
 	// TODO: More stuff
 
 	//
@@ -365,6 +376,13 @@ static void TEST_read_board(void)
 		tap_ok(board->exits[i] == 2+i, "Read board exit");
 	}
 	tap_ok(board->restart_on_zap == 0, "Read board restart on zap");
+
+#if !SUPER_ZZT
+	tap_ok(!strcmp(board->message.dat, "MESSAGE"),
+		"Read board message contents");
+	tap_ok(board->message.len == strlen(board->message.dat),
+		"Read board message length");
+#endif /* !SUPER_ZZT */
 
 	// TODO: get this working
 	//tap_ok(board->block->stat_count == 1,
