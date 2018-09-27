@@ -1,8 +1,8 @@
 #include "common.h"
 #include "board.h"
 #include "block.h"
-#include "stat.h"
 #include "io.h"
+#include "stat.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -207,19 +207,17 @@ Board *read_board(IoStream *stream)
 		io_read(substream, padbuf, sizeof(padbuf));
 	}
 
-	// TODO: More stuff
 	int raw_stat_count = io_read_s16le(substream);
 	assert(raw_stat_count >= 0);
-	int stat_count = raw_stat_count + 1;
-	for(int i = 0; i < stat_count; i++)
+	board->block->stat_count = raw_stat_count + 1;
+	assert(board->block->stat_count >= 0);
+	board->block->stats = realloc(
+		board->block->stats,
+		sizeof(Stat *) * board->block->stat_count);
+
+	for(int i = 0; i < board->block->stat_count; i++)
 	{
-		int stat_x = io_read_u8(substream);
-		int stat_y = io_read_u8(substream);
-		int sidx = add_stat_to_block(board->block,
-			stat_x - 1, stat_y - 1);
-		assert(sidx == i);
-		Stat *stat = board->block->stats[sidx];
-		assert(stat != NULL);
+		board->block->stats[i] = read_stat(substream);
 	}
 
 	//

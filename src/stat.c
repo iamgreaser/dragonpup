@@ -1,4 +1,5 @@
 #include "common.h"
+#include "io.h"
 #include "stat.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -84,6 +85,19 @@ static void TEST_new_stat(void)
 		"Duplicator step is north");
 	free_stat(&stat);
 
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+Stat *read_stat(IoStream *stream)
+{
+	Stat *stat = malloc(sizeof(Stat));
+	memset(stat, 0, sizeof(Stat));
+
+	stat->x = io_read_u8(stream) - 1;
+	stat->y = io_read_u8(stream) - 1;
+
+	return stat;
 }
 
 ////////////////////////////////////////////////////////////////////////////
