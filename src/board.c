@@ -189,6 +189,24 @@ Board *read_board(IoStream *stream)
 	board->message.dat[board->message.len] = 0;
 #endif /* !SUPER_ZZT */
 
+	board->player_enter_x = io_read_u8(substream);
+	board->player_enter_y = io_read_u8(substream);
+#if SUPER_ZZT
+	board->camera_x = io_read_u8(substream);
+	board->camera_y = io_read_u8(substream);
+#endif /* SUPER_ZZT */
+	board->time_limit = io_read_s16le(substream);
+
+	// TODO: Implement relative seeks
+	{
+#if SUPER_ZZT
+		uint8_t padbuf[14];
+#else /* !SUPER_ZZT */
+		uint8_t padbuf[16];
+#endif /* SUPER_ZZT */
+		io_read(substream, padbuf, sizeof(padbuf));
+	}
+
 	// TODO: More stuff
 
 	//
@@ -286,10 +304,10 @@ static void TEST_read_board(void)
 
 		3, 1, // Player enter x, y
 #if SUPER_ZZT
-		0, 0, // Camera x, y
+		2, 1, // Camera x, y
 #endif /* SUPER_ZZT */
 
-		0, 0, // Time limit
+		0x00, 0x04, // Time limit
 		// Padding
 #if SUPER_ZZT
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -375,7 +393,8 @@ static void TEST_read_board(void)
 	{
 		tap_ok(board->exits[i] == 2+i, "Read board exit");
 	}
-	tap_ok(board->restart_on_zap == 0, "Read board restart on zap");
+	tap_ok(board->restart_on_zap == 0,
+		"Read board restart on zap");
 
 #if !SUPER_ZZT
 	tap_ok(!strcmp(board->message.dat, "MESSAGE"),
@@ -383,6 +402,21 @@ static void TEST_read_board(void)
 	tap_ok(board->message.len == strlen(board->message.dat),
 		"Read board message length");
 #endif /* !SUPER_ZZT */
+
+
+	tap_ok(board->player_enter_x == 3,
+		"Read board player entry X");
+	tap_ok(board->player_enter_y == 1,
+		"Read board player entry Y");
+#if SUPER_ZZT
+	tap_ok(board->camera_x == 2,
+		"Read board camera X");
+	tap_ok(board->camera_y == 1,
+		"Read board camera Y");
+#endif /* SUPER_ZZT */
+
+	tap_ok(board->time_limit == 0x400,
+		"Read board time limit");
 
 	// TODO: get this working
 	//tap_ok(board->block->stat_count == 1,
