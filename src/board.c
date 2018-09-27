@@ -197,10 +197,10 @@ static void TEST_read_board(void)
 #endif /* SUPER_ZZT */
 
 		// Tiles:
-		// Tile (0, 0): Player
-		1,   T_PLAYER, 0x1F,
-		// Tiles ([1,2], 0): Yellow Normal
+		// Tiles ([0,1], 0): Yellow Normal
 		2,   T_NORMAL, 0x0E,
+		// Tile (2, 0): Player
+		1,   T_PLAYER, 0x1F,
 		// Most of the remainder is empty
 #if SUPER_ZZT
 		255, T_EMPTY, 0x70,
@@ -280,7 +280,7 @@ static void TEST_read_board(void)
 		0,0, // Stat element count
 
 		// Stat 0: Player
-		1, 1, // Location x, y
+		3, 1, // Location x, y
 		0, 0, // Step x, y
 		1, 0, // Cycle
 		0, 0, 0, // P1, P2, P3
@@ -319,18 +319,18 @@ static void TEST_read_board(void)
 	tap_ok(board->name.len == strlen(board->name.dat),
 		"Read board name length");
 
-	tap_ok(get_block_tile_raw_type(board->block, 0, 0) == T_PLAYER,
-		"Read board tile (0, 0) is a player");
-	tap_ok(get_block_tile_raw_color(board->block, 0, 0) == 0x1F,
-		"Read board tile (0, 0) is white on blue");
+	tap_ok(get_block_tile_raw_type(board->block, 0, 0) == T_NORMAL,
+		"Read board tile (0, 0) is a normal");
+	tap_ok(get_block_tile_raw_color(board->block, 0, 0) == 0x0E,
+		"Read board tile (0, 0) is yellow");
 	tap_ok(get_block_tile_raw_type(board->block, 1, 0) == T_NORMAL,
 		"Read board tile (1, 0) is a normal");
 	tap_ok(get_block_tile_raw_color(board->block, 1, 0) == 0x0E,
 		"Read board tile (1, 0) is yellow");
-	tap_ok(get_block_tile_raw_type(board->block, 2, 0) == T_NORMAL,
-		"Read board tile (2, 0) is a normal");
-	tap_ok(get_block_tile_raw_color(board->block, 2, 0) == 0x0E,
-		"Read board tile (2, 0) is yellow");
+	tap_ok(get_block_tile_raw_type(board->block, 2, 0) == T_PLAYER,
+		"Read board tile (2, 0) is a player");
+	tap_ok(get_block_tile_raw_color(board->block, 2, 0) == 0x1F,
+		"Read board tile (2, 0) is white on blue");
 	tap_ok(get_block_tile_raw_type(board->block, 3, 0) == T_EMPTY,
 		"Read board tile (3, 0) is empty");
 	tap_ok(get_block_tile_raw_type(board->block, 0, 1) == T_EMPTY,
