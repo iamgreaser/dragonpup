@@ -150,6 +150,26 @@ Board *read_board(IoStream *stream)
 	}
 	board->name.dat[board->name.len] = 0;
 
+#if 1
+	int rle_count = 0;
+	int rle_type = 0;
+	int rle_color = 0;
+	for(int y = 0; y < board->block->height; y++)
+	for(int x = 0; x < board->block->width; x++)
+	{
+		if(rle_count == 0)
+		{
+			rle_count = io_read_u8(substream);
+			rle_type = io_read_u8(substream);
+			rle_color = io_read_u8(substream);
+		}
+		set_block_tile_raw_type(board->block, x, y, (tile_type)rle_type);
+		set_block_tile_raw_color(board->block, x, y, rle_color);
+		rle_count--;
+		rle_count &= 0xFF;
+	}
+#endif
+
 	// TODO: More stuff
 
 	//
@@ -178,17 +198,17 @@ static void TEST_read_board(void)
 #endif /* SUPER_ZZT */
 
 		// Tiles:
-		// Tile 1: Player
+		// Tile (0, 0): Player
 		1,   T_PLAYER, 0x1F,
-		// Remainder is empty
+		// Tiles ([1,2], 0): Yellow Normal
+		2,   T_NORMAL, 0x0E,
+		// Most of the remainder is empty
 #if SUPER_ZZT
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
-		224, T_EMPTY, 0x70,
-#else
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
@@ -213,14 +233,19 @@ static void TEST_read_board(void)
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
+		0,   T_EMPTY, 0x70,
+		24,  T_EMPTY, 0x70,
+#else /* !SUPER_ZZT */
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
 		255, T_EMPTY, 0x70,
-		255, T_EMPTY, 0x70,
-		255, T_EMPTY, 0x70,
-		29,  T_EMPTY, 0x70,
+		0,   T_EMPTY, 0x70,
+		219, T_EMPTY, 0x70,
 #endif /* SUPER_ZZT */
+		// Bottom right corner, two tiles
+		1,   T_AMMO,  0x03,
+		1,   T_EMPTY, 0x70,
 
 		255, // Max player shots
 #if !SUPER_ZZT
@@ -295,6 +320,31 @@ static void TEST_read_board(void)
 	tap_ok(board->name.len == strlen(board->name.dat),
 		"Read board name length");
 
+	tap_ok(get_block_tile_raw_type(board->block, 0, 0) == T_PLAYER,
+		"Read board tile (0, 0) is a player");
+	tap_ok(get_block_tile_raw_color(board->block, 0, 0) == 0x1F,
+		"Read board tile (0, 0) is white on blue");
+	tap_ok(get_block_tile_raw_type(board->block, 1, 0) == T_NORMAL,
+		"Read board tile (1, 0) is a normal");
+	tap_ok(get_block_tile_raw_color(board->block, 1, 0) == 0x0E,
+		"Read board tile (1, 0) is yellow");
+	tap_ok(get_block_tile_raw_type(board->block, 2, 0) == T_NORMAL,
+		"Read board tile (2, 0) is a normal");
+	tap_ok(get_block_tile_raw_color(board->block, 2, 0) == 0x0E,
+		"Read board tile (2, 0) is yellow");
+	tap_ok(get_block_tile_raw_type(board->block, 3, 0) == T_EMPTY,
+		"Read board tile (3, 0) is empty");
+	tap_ok(get_block_tile_raw_type(board->block, 0, 1) == T_EMPTY,
+		"Read board tile (0, 1) is empty");
+	tap_ok(get_block_tile_raw_type(board->block,
+		ZZT_BOARD_WIDTH-2, ZZT_BOARD_HEIGHT-1) == T_AMMO,
+		"Read board tile (W-2, H-1) is ammo");
+	tap_ok(get_block_tile_raw_color(board->block,
+		ZZT_BOARD_WIDTH-2, ZZT_BOARD_HEIGHT-1) == 0x03,
+		"Read board tile (W-2, H-1) is dark cyan");
+	tap_ok(get_block_tile_raw_type(board->block,
+		ZZT_BOARD_WIDTH-1, ZZT_BOARD_HEIGHT-1) == T_EMPTY,
+		"Read board tile (W-1, H-1) is empty");
 	// TODO: get this working
 	//tap_ok(board->block->stat_count == 1,
 	//	"Read board has 1 stat");
