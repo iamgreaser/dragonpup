@@ -94,6 +94,49 @@ int io_read_s16le(IoStream *stream)
 
 ////////////////////////////////////////////////////////////////////////////
 
+static ssize_t binary_file_io_read(IoStream *stream, void *buf, size_t bytes)
+{
+	ssize_t result = fread(
+		buf, 1, bytes,
+		stream->data.file_stream.fp);
+
+	if(result < 0)
+	{
+		return IOSTREAM_ERROR_GENERIC;
+	}
+
+	return result;
+}
+
+static void binary_file_io_close(IoStream *stream)
+{
+	fclose(stream->data.file_stream.fp);
+}
+
+struct io_stream_driver binary_file_io_driver = {
+	.read = binary_file_io_read,
+	.write = NULL,
+	.close = binary_file_io_close,
+};
+
+IoStream *io_open_binary_file_for_reading(const char *fname)
+{
+	FILE *fp = fopen(fname, "rb");
+	if(fp == NULL)
+	{
+		return NULL;
+	}
+
+	IoStream *stream = malloc(sizeof(IoStream));
+	memset(stream, 0, sizeof(IoStream));
+	stream->driver = &binary_file_io_driver;
+	stream->data.file_stream.fp = fp;
+
+	return stream;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 static ssize_t shared_buffer_io_read(IoStream *stream, void *buf, size_t bytes)
 {
 	size_t src_start = stream->data.io_buffer.read_offset;
