@@ -35,12 +35,7 @@ void free_board(Board **pboard)
 {
 	if(*pboard != NULL)
 	{
-		if((*pboard)->block != NULL)
-		{
-			free((*pboard)->block);
-			(*pboard)->block = NULL;
-		}
-
+		free_block(&((*pboard)->block));
 		free(*pboard);
 	}
 
