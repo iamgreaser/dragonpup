@@ -129,7 +129,7 @@ Board *read_board(IoStream *stream)
 	ssize_t board_length = io_read_s16le(stream);
 
 	assert(board_length >= 0);
-	// ZZT engine limit
+	// ZZT engine limit, may be more generous for Super ZZT
 	assert(board_length <= 20000);
 
 	// Form substream
@@ -353,8 +353,8 @@ void FIXTURE_read_board(uint8_t **pbuf, size_t *pbytes)
 	};
 
 	// Fill in length
-	fixture[0] = 0xFF & (sizeof(fixture));
-	fixture[1] = 0xFF & (sizeof(fixture) >> 8);
+	fixture[0] = 0xFF & ((sizeof(fixture) - 2));
+	fixture[1] = 0xFF & ((sizeof(fixture) - 2) >> 8);
 
 	// Allocate and fill new buffer
 	*pbytes = sizeof(fixture);

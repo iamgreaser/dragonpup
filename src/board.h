@@ -9,3 +9,6 @@ void free_board(Board **pboard);
 
 //# read_board
 Board *read_board(IoStream *stream);
+
+// TEST FIXTURES
+void FIXTURE_read_board(uint8_t **pbuf, size_t *pbytes);
