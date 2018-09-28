@@ -363,6 +363,43 @@ static void TEST_read_world(void)
 		"Read world stones");
 #endif
 
+	// Do a basic comparison
+	assert(world->board_count >= 2);
+	tap_ok(world->boards != NULL, "Read world has boards");
+	assert(world->boards != NULL);
+
+	for(int i = 0; i < 2; i++)
+	{
+		Board *board = world->boards[i];
+		tap_ok(board != NULL,
+			"Read world board exists");
+		assert(board != NULL);
+
+		Block *block = board->block;
+		tap_ok(block != NULL,
+			"Read world block exists");
+		assert(block != NULL);
+
+		tap_ok(block->stats != NULL,
+			"Read world board has stats");
+		assert(block->stats != NULL);
+
+		Stat *stat = block->stats[0];
+		tap_ok(stat != NULL,
+			"Read world board has stat 0");
+		assert(stat != NULL);
+
+		tap_ok(stat->code_length == 3,
+			"Read world board code length");
+		tap_ok(stat->code != NULL,
+			"Read world board has code");
+		assert(stat->code != NULL);
+
+		tap_ok(!memcmp(stat->code,
+				"@hi", 3),
+			"Read world board code is as expected");
+	}
+
 	free_world(&world);
 	free(world_fixture_buf);
 }
