@@ -155,26 +155,45 @@ World *read_world(IoStream *stream)
 
 	world->player_health = io_read_s16le(header_stream);
 	world->starting_board = io_read_s16le(header_stream);
-#if 0
-
 #if SUPER_ZZT
-	int16_t player_score;
-	int16_t energy_cycles;
+	io_read_s16le(header_stream); // PADDING
+	world->player_score = io_read_s16le(header_stream);
+	io_read_s16le(header_stream); // PADDING
+	world->energy_cycles = io_read_s16le(header_stream);
 #else /* !SUPER_ZZT */
-	int16_t player_torches;
-	int16_t torch_cycles;
-	int16_t energy_cycles;
-	int16_t player_score;
+	world->player_torches = io_read_s16le(header_stream);
+	world->torch_cycles = io_read_s16le(header_stream);
+	world->energy_cycles = io_read_s16le(header_stream);
+	io_read_s16le(header_stream); // PADDING
+	world->player_score = io_read_s16le(header_stream);
 #endif /* SUPER_ZZT */
-	pstring20 world_name;
-	pstring20 flags[ZZT_MAX_FLAGS];
-	int16_t time_passed;
-	int16_t time_passed_subticks;
-	uint8_t is_saved_game;
+	world->world_name.len = io_read_u8(header_stream);
+	if(world->world_name.len >= sizeof(world->world_name.dat)-1)
+	{
+		world->world_name.len = sizeof(world->world_name.dat)-1;
+	}
+	io_read(header_stream,
+		world->world_name.dat,
+		sizeof(world->world_name.dat)-1);
+	world->world_name.dat[world->world_name.len] = 0;
+	for(int i = 0; i < ZZT_MAX_FLAGS; i++)
+	{
+		world->flags[i].len = io_read_u8(header_stream);
+		if(world->flags[i].len >= sizeof(world->flags[i].dat)-1)
+		{
+			world->flags[i].len = sizeof(world->flags[i].dat)-1;
+		}
+		io_read(header_stream,
+			world->flags[i].dat,
+			sizeof(world->flags[i].dat)-1);
+		world->flags[i].dat[world->flags[i].len] = 0;
+	}
+	world->time_passed = io_read_s16le(header_stream);
+	world->time_passed_subticks = io_read_s16le(header_stream);
+	world->is_saved_game = io_read_u8(header_stream);
 #if SUPER_ZZT
-	int16_t player_stones;
+	world->player_stones = io_read_s16le(header_stream);
 #endif /* SUPER_ZZT */
-#endif
 	// TODO: other stuff
 
 	io_close(&header_stream);
@@ -306,24 +325,43 @@ static void TEST_read_world(void)
 	tap_ok(world->starting_board == 1,
 		"Read world starting board");
 
-#if 0
-#if SUPER_ZZT
-	int16_t player_score;
-	int16_t energy_cycles;
-#else /* !SUPER_ZZT */
-	int16_t player_torches;
-	int16_t torch_cycles;
-	int16_t energy_cycles;
-	int16_t player_score;
+	tap_ok(world->player_score == 1025,
+		"Read world score");
+	tap_ok(world->energy_cycles == 0,
+		"Read world energy cycles");
+#if !SUPER_ZZT
+	tap_ok(world->player_torches == 3,
+		"Read world torches");
+	tap_ok(world->torch_cycles == 0,
+		"Read world torch cycles");
 #endif /* SUPER_ZZT */
-	pstring20 world_name;
-	pstring20 flags[ZZT_MAX_FLAGS];
-	int16_t time_passed;
-	int16_t time_passed_subticks;
-	uint8_t is_saved_game;
+
+	tap_ok(!strcmp(world->world_name.dat, "UNTITLED"),
+		"Read world name contents");
+	tap_ok(world->world_name.len == strlen(world->world_name.dat),
+		"Read world name length");
+
+	tap_ok(!strcmp(world->flags[0].dat, "SECRET"),
+		"Read world flag contents");
+	tap_ok(world->flags[0].len == strlen(world->flags[0].dat),
+		"Read world flag length");
+	for(int i = 1; i < ZZT_MAX_FLAGS; i++)
+	{
+		tap_ok(!strcmp(world->flags[i].dat, ""),
+			"Read world flag contents");
+		tap_ok(world->flags[i].len == strlen(world->flags[i].dat),
+			"Read world flag length");
+	}
+
+	tap_ok(world->time_passed == 3,
+		"Read world time passed");
+	tap_ok(world->time_passed_subticks == 0,
+		"Read world time passed subseconds");
+	tap_ok(world->is_saved_game == 0,
+		"Read world save flag");
 #if SUPER_ZZT
-	int16_t player_stones;
-#endif
+	tap_ok(world->player_stones == 5,
+		"Read world stones");
 #endif
 
 	free_world(&world);
