@@ -51,6 +51,10 @@ void free_stat(Stat **pstat)
 {
 	if(*pstat != NULL)
 	{
+		if((*pstat)->code != NULL)
+		{
+			free((*pstat)->code);
+		}
 		free(*pstat);
 	}
 
