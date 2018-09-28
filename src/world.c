@@ -43,6 +43,7 @@ void free_world(World **pworld)
 			free_board(&((*pworld)->boards[i]));
 		}
 
+		free((*pworld)->boards);
 		free(*pworld);
 	}
 
