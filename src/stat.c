@@ -113,7 +113,19 @@ Stat *read_stat(IoStream *stream)
 	// Code
 	stat->code_pc = io_read_s16le(stream);
 	stat->code_length = io_read_s16le(stream);
-	// TODO: load actual code
+
+#if !SUPER_ZZT
+	// Skip 8 bytes of padding
+	io_read_s16le(stream); io_read_s16le(stream);
+	io_read_s16le(stream); io_read_s16le(stream);
+#endif /* !SUPER_ZZT */
+
+	if(stat->code_length > 0)
+	{
+		stat->code = malloc(stat->code_length);
+		io_read(stream, stat->code, stat->code_length);
+		// FIXME: TEST THIS!
+	}
 
 	return stat;
 }

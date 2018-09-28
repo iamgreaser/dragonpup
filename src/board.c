@@ -466,6 +466,11 @@ static void TEST_read_board(void)
 		"Read board stat 0 code PC");
 	tap_ok(board->block->stats[0]->code_length == 3,
 		"Read board stat 0 code length");
+	tap_ok(board->block->stats[0]->code != NULL,
+		"Read board stat 0 has a code block");
+	assert(board->block->stats[0]->code != NULL);
+	tap_ok(!memcmp(board->block->stats[0]->code, "@hi", 3),
+		"Read board stat 0 code block contents");
 
 	// TODO: get these working
 	/*
