@@ -301,6 +301,7 @@ static void TEST_read_world(void)
 			board_fixture_base_buf,
 			board_fixture_base_bytes);
 	}
+	free(board_fixture_base_buf);
 
 	IoStream *stream = io_open_shared_buffer_for_reading(
 		world_fixture_buf, world_fixture_bytes);
