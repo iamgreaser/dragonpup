@@ -472,12 +472,6 @@ static void TEST_read_board(void)
 	tap_ok(!memcmp(board->block->stats[0]->code, "@hi", 3),
 		"Read board stat 0 code block contents");
 
-	// TODO: get these working
-	/*
-	// Code
-	'@', 'h', 'i',
-	*/
-
 	free_board(&board);
 	tap_ok(board == NULL, "Freed read board");
 }
