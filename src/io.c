@@ -39,6 +39,7 @@ void io_close(IoStream **pstream)
 
 	(*pstream)->driver->close((*pstream));
 
+	free(*pstream);
 	*pstream = NULL;
 }
 
