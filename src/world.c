@@ -146,15 +146,16 @@ World *read_world(IoStream *stream)
 	memset(world, 0, sizeof(*world));
 	world->version_magic = version_magic;
 	world->board_count = io_read_s16le(header_stream) + 1;
-#if 0
 	world->player_ammo = io_read_s16le(header_stream);
 	world->player_gems = io_read_s16le(header_stream);
 	for(int i = 0; i < ZZT_MAX_KEYS; i++)
 	{
 		world->player_keys[i] = io_read_u8(header_stream);
 	}
-	int16_t player_health;
-	int16_t starting_board;
+
+	world->player_health = io_read_s16le(header_stream);
+	world->starting_board = io_read_s16le(header_stream);
+#if 0
 
 #if SUPER_ZZT
 	int16_t player_score;
@@ -291,6 +292,39 @@ static void TEST_read_world(void)
 	assert(world != NULL);
 
 	tap_ok(world->board_count == 2, "Read world board count");
+	tap_ok(world->player_ammo == 20,
+		"Read world ammo");
+	tap_ok(world->player_gems == 1,
+		"Read world gems");
+	for(int i = 0; i < ZZT_MAX_KEYS; i++)
+	{
+		tap_ok(world->player_keys[i] == 1,
+			"Read world keys");
+	}
+	tap_ok(world->player_health == 100,
+		"Read world health");
+	tap_ok(world->starting_board == 1,
+		"Read world starting board");
+
+#if 0
+#if SUPER_ZZT
+	int16_t player_score;
+	int16_t energy_cycles;
+#else /* !SUPER_ZZT */
+	int16_t player_torches;
+	int16_t torch_cycles;
+	int16_t energy_cycles;
+	int16_t player_score;
+#endif /* SUPER_ZZT */
+	pstring20 world_name;
+	pstring20 flags[ZZT_MAX_FLAGS];
+	int16_t time_passed;
+	int16_t time_passed_subticks;
+	uint8_t is_saved_game;
+#if SUPER_ZZT
+	int16_t player_stones;
+#endif
+#endif
 
 	free_world(&world);
 	free(world_fixture_buf);
