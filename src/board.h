@@ -7,3 +7,5 @@ Board *new_board(void);
 //#   Double-pointer to board. Pointer to board is set to NULL.
 void free_board(Board **pboard);
 
+//# read_board
+Board *read_board(IoStream *stream);

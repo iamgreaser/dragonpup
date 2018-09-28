@@ -229,7 +229,7 @@ Board *read_board(IoStream *stream)
 	return board;
 }
 
-static void TEST_read_board(void)
+void FIXTURE_read_board(uint8_t **pbuf, size_t *pbytes)
 {
 	uint8_t fixture[] = {
 		0x00, 0x00, // Board size (to be filled in)
@@ -356,8 +356,23 @@ static void TEST_read_board(void)
 	fixture[0] = 0xFF & (sizeof(fixture));
 	fixture[1] = 0xFF & (sizeof(fixture) >> 8);
 
+	// Allocate and fill new buffer
+	*pbytes = sizeof(fixture);
+	*pbuf = malloc(*pbytes);
+	memcpy(*pbuf, fixture, *pbytes);
+}
+
+static void TEST_read_board(void)
+{
+	uint8_t *fixture = NULL;
+	size_t fixture_bytes = 0;
+
+	FIXTURE_read_board(&fixture, &fixture_bytes);
+	assert(fixture != NULL);
+	assert(fixture_bytes != 0);
+
 	IoStream *stream = io_open_shared_buffer_for_reading(
-		fixture, sizeof(fixture));
+		fixture, fixture_bytes);
 	assert(stream != NULL);
 	Board *board = read_board(stream);
 	tap_ok(board != NULL, "Read a board");
@@ -474,6 +489,8 @@ static void TEST_read_board(void)
 
 	free_board(&board);
 	tap_ok(board == NULL, "Freed read board");
+
+	free(fixture);
 }
 
 ////////////////////////////////////////////////////////////////////////////
