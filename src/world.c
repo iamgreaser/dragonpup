@@ -194,7 +194,6 @@ World *read_world(IoStream *stream)
 #if SUPER_ZZT
 	world->player_stones = io_read_s16le(header_stream);
 #endif /* SUPER_ZZT */
-	// TODO: other stuff
 
 	io_close(&header_stream);
 
