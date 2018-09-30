@@ -59,6 +59,7 @@ void gfx_tests(void);
 void io_tests(void);
 void stat_tests(void);
 void tile_tests(void);
+void vt_tests(void);
 void world_tests(void);
 
 #define ALL_TEST_CASES \
@@ -70,6 +71,7 @@ void world_tests(void);
 	io_tests(); \
 	stat_tests(); \
 	tile_tests(); \
+	vt_tests(); \
 	world_tests(); \
 //
 
