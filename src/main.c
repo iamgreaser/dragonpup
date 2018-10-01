@@ -8,7 +8,6 @@
 // for spikes
 #include "block.h"
 #include "vt.h"
-#include "tile.h"
 
 int main(int argc, char *argv[])
 {
@@ -91,14 +90,10 @@ int main(int argc, char *argv[])
 		{
 			for(int x = 0; x < block->width; x++)
 			{
-				// FIXME needs abstraction via block
-				uint8_t ch = get_tile_char(
-					&block->tile_data[x*block->height + y],
-					NULL, block, x, y);
-
-				uint8_t col = get_tile_color(
-					&block->tile_data[x*block->height + y],
-					NULL, block, x, y);
+				uint8_t ch = get_block_tile_visible_char(
+					block, x, y);
+				uint8_t col = get_block_tile_visible_color(
+					block, x, y);
 
 				// FIXME needs to apply colour
 				uint8_t outbuf[32];
