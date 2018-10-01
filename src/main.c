@@ -5,6 +5,10 @@
 #include "io.h"
 #include "world.h"
 
+// for spikes
+#include "block.h"
+#include "vt.h"
+
 int main(int argc, char *argv[])
 {
 	bool quit_after_tests = false;
@@ -74,6 +78,32 @@ int main(int argc, char *argv[])
 	{
 		printf("ERROR: Could not load world\n");
 		return 1;
+	}
+
+	// FIXME: this is a spike - split into functions for each structure in the right files!
+	for(int b = 0; b < world->board_count; b++)
+	{
+		Board *board = world->boards[b];
+		Block *block = board->block;
+		printf("%s:\n", board->name.dat);
+		for(int y = 0; y < block->height; y++)
+		{
+			for(int x = 0; x < block->width; x++)
+			{
+				// FIXME needs actual char
+				uint8_t ch = get_block_tile_raw_type(block, x, y);
+				uint8_t col = get_block_tile_raw_color(block, x, y);
+				// FIXME needs to apply colour
+				uint8_t outbuf[32];
+				int inbuf[1];
+				inbuf[0] = cp437_char_to_utf8(ch);
+				write_utf8_chars_to_string(outbuf, sizeof(outbuf)-1, inbuf, 1);
+				outbuf[sizeof(outbuf)-1] = 0;
+				printf("%s", outbuf);
+			}
+			printf("\n");
+		}
+		printf("\n");
 	}
 
 	free_world(&world);
