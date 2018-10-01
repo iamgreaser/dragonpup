@@ -313,6 +313,16 @@ static const uint8_t line_chars[16] = {
 	0xCD, 0xCA, 0xCB, 0xCE,
 };
 
+#if SUPER_ZZT
+// This, by the way, is the string before the line table.
+static const uint8_t web_chars[16] = {
+	0xFA, 0xB3, 0xB3, 0xB3,
+	0xC4, 0xD9, 0xBF, 0xB4,
+	0xC4, 0xC0, 0xDA, 0xC3,
+	0xC4, 0xC1, 0xC2, 0xC5,
+};
+#endif /* SUPER_ZZT */
+
 uint8_t get_block_tile_visible_char(Block *block, int x, int y)
 {
 	if(!coords_in_range_of_block(block, x, y))
@@ -345,6 +355,25 @@ uint8_t get_block_tile_visible_char(Block *block, int x, int y)
 		return line_chars[cidx];
 	}
 
+#if SUPER_ZZT
+	if(tile->type == T_WEB)
+	{
+		tile_type tyn = get_block_tile_raw_type(block, x, y-1);
+		tile_type typ = get_block_tile_raw_type(block, x, y+1);
+		tile_type txn = get_block_tile_raw_type(block, x-1, y);
+		tile_type txp = get_block_tile_raw_type(block, x+1, y);
+
+		int cidx = 0;
+		if(tyn == T_WEB || tyn == T_BOARD_EDGE) { cidx |= 0x1; }
+		if(typ == T_WEB || typ == T_BOARD_EDGE) { cidx |= 0x2; }
+		if(txn == T_WEB || txn == T_BOARD_EDGE) { cidx |= 0x4; }
+		if(txp == T_WEB || txp == T_BOARD_EDGE) { cidx |= 0x8; }
+
+		assert(cidx >= 0 && cidx < 16);
+		return web_chars[cidx];
+	}
+#endif /* SUPER_ZZT */
+
 	return get_tile_char(tile, stat, block, x, y);
 }
 
@@ -368,7 +397,7 @@ uint8_t get_block_tile_visible_color(Block *block, int x, int y)
 
 static void TEST_get_block_tile_visible_char_color(void)
 {
-	Block *block = new_block(10, 10);
+	Block *block = new_block(12, 10);
 	assert(block != NULL);
 
 	set_block_tile_raw_type(block, 0, 0, T_PLAYER);
@@ -398,6 +427,18 @@ static void TEST_get_block_tile_visible_char_color(void)
 			set_block_tile_raw_color(block, x, y, y);
 		}
 	}
+
+#if SUPER_ZZT
+	// Get some web tests in too.
+	for(int y = 1; y <= 3; y++)
+	{
+		for(int x = 7; x <= 9; x++)
+		{
+			set_block_tile_raw_type(block, x, y, T_WEB);
+			set_block_tile_raw_color(block, x, y, y);
+		}
+	}
+#endif /* !SUPER_ZZT */
 
 	tap_ok(get_block_tile_visible_char(block, 0, 0) == 0x02,
 		"Tile char: Player");
@@ -449,6 +490,26 @@ static void TEST_get_block_tile_visible_char_color(void)
 			tap_ok(c00 != c11, "Line char differences 11");
 		}
 	}
+
+#if SUPER_ZZT
+	// Webs!
+	// Every char must be different.
+	for(int y = 1; y <= 3-1; y++)
+	{
+		for(int x = 7; x <= 9-1; x++)
+		{
+			int cline = get_block_tile_visible_char(block, x-3, y+3);
+			int c00 = get_block_tile_visible_char(block, x+0, y+0);
+			int c01 = get_block_tile_visible_char(block, x+0, y+1);
+			int c10 = get_block_tile_visible_char(block, x+1, y+0);
+			int c11 = get_block_tile_visible_char(block, x+1, y+1);
+			tap_ok(c00 != c01, "Web char differences 01");
+			tap_ok(c00 != c10, "Web char differences 10");
+			tap_ok(c00 != c11, "Web char differences 11");
+			tap_ok(c00 != cline, "Web char != line char");
+		}
+	}
+#endif /* SUPER_ZZT */
 
 	free_block(&block);
 }
