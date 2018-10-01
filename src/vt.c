@@ -43,6 +43,13 @@ size_t write_utf8_chars_to_string(
 		size_t char_length = get_utf8_char_length(c);
 		size_t cbeg = dstidx;
 		size_t cend = dstidx + char_length;
+
+		// Cut it short if we have to.
+		if(cend > dstbytes)
+		{
+			break;
+		}
+
 		assert(cend <= dstbytes);
 
 		if(c <= 0x7F)
@@ -82,6 +89,12 @@ size_t write_utf8_chars_to_string(
 		assert(cend == dstidx);
 	}
 
+	// Add trailing nul iff it can fit
+	if(dstidx < dstbytes)
+	{
+		dstbuf[dstidx] = 0;
+	}
+
 	return dstidx;
 }
 
@@ -117,7 +130,7 @@ static void TEST_write_utf8_chars_to_string(void)
 		}
 	}
 	tap_ok(corelation_test_result,
-		"get_utf8_char_length() matches to_utf8_string()");
+		"get_utf8_char_length() matches write_utf8_chars_to_string()");
 	tap_ok(valid_points_test_result_getlen,
 		"all valid points appear in get_utf8_char_length()");
 
@@ -139,6 +152,49 @@ static void TEST_write_utf8_chars_to_string(void)
 	tap_ok(get_utf8_char_length(0x10FFFF) == 4,
 		"0x10FFFF should be length 4");
 
+	// String run
+	{
+		const char *ref_output = "\xcf\x80_\xe2\x80\xbd";
+		int srcbuf[3] = {0x03C0, '_', 0x203D};
+		uint8_t dstbuf[8];
+		size_t bytes_written;
+		memset(dstbuf, 1, 8);
+		bytes_written = write_utf8_chars_to_string(
+			dstbuf, 8, srcbuf, 3);
+		tap_ok(!memcmp(dstbuf, ref_output, 7),
+			"UTF string should add nul w/ 2 spare bytes");
+		tap_ok(bytes_written == 6,
+			"UTF string length of buffer size 8");
+
+		memset(dstbuf, 1, 8);
+		bytes_written = write_utf8_chars_to_string(
+			dstbuf, 7, srcbuf, 3);
+		tap_ok(!memcmp(dstbuf, ref_output, 7),
+			"UTF string should add nul w/ 1 spare byte");
+		tap_ok(bytes_written == 6,
+			"UTF string length of buffer size 8");
+
+		memset(dstbuf, 1, 8);
+		bytes_written = write_utf8_chars_to_string(
+			dstbuf, 6, srcbuf, 3);
+		tap_ok((!memcmp(dstbuf, ref_output, 6))
+				&& dstbuf[6] == 1,
+			"UTF string should not add nul w/ 0 spares");
+		tap_ok(bytes_written == 6,
+			"UTF string length of buffer size 6");
+
+		memset(dstbuf, 1, 8);
+		bytes_written = write_utf8_chars_to_string(
+			dstbuf, 5, srcbuf, 3);
+		tap_ok((!memcmp(dstbuf, ref_output, 3))
+				&& dstbuf[3] == 0
+				&& dstbuf[4] == 1
+				&& dstbuf[5] == 1
+				&& dstbuf[6] == 1,
+			"UTF string should truncate w/ 1 whole symbol short");
+		tap_ok(bytes_written == 3,
+			"UTF string length of buffer size 5 w/ truncation");
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
