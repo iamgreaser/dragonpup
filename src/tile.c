@@ -148,7 +148,9 @@ uint8_t get_tile_color(const Tile *tile, const Stat *stat,
 	{
 		int color = tile->type - T_TEXT_BLUE;
 		color += 1;
-		color &= 7;
+		if(color == 7) {
+			color = 0;
+		}
 		// TODO: handle blinking text
 
 		// Move to BG, use white FG
@@ -194,6 +196,9 @@ static void TEST_get_tile_color(void)
 	Tile textblue2 = {.type = T_TEXT_BLUE, .color = 0x3F};
 	tap_ok(get_tile_color(&textblue2, NULL, NULL, 0, 0) == 0x1F,
 		"Tile color: Text Blue, 0x3F");
+	Tile textblack1 = {.type = T_TEXT_BLACK, .color = 0x21};
+	tap_ok(get_tile_color(&textblack1, NULL, NULL, 0, 0) == 0x0F,
+		"Tile color: Text Black, 0x21");
 }
 
 ////////////////////////////////////////////////////////////////////////////
