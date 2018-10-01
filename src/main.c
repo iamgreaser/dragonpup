@@ -106,7 +106,16 @@ int main(int argc, char *argv[])
 				inbuf[0] = cp437_char_to_utf8(ch);
 				write_utf8_chars_to_string(outbuf, sizeof(outbuf)-1, inbuf, 1);
 				outbuf[sizeof(outbuf)-1] = 0;
-				printf("%s", outbuf);
+				printf("\x1B[3%d;4%dm",
+					((col&0x04)>>2)
+					|((col&0x01)<<2)
+					|(col&0x02),
+					(((col>>4)&0x04)>>2)
+					|(((col>>4)&0x01)<<2)
+					|((col>>4)&0x02));
+				if((col&0x08) != 0) { printf("\x1B[1m"); }
+				if((col&0x80) != 0) { printf("\x1B[5m"); }
+				printf("%s\x1B[0m", outbuf);
 			}
 			printf("\n");
 		}
