@@ -19,6 +19,12 @@ uint8_t get_block_tile_raw_color(Block *block, int x, int y);
 //# set_block_tile_raw_color
 void set_block_tile_raw_color(Block *block, int x, int y, uint8_t tile);
 
+//# get_block_tile_visible_char
+uint8_t get_block_tile_visible_char(Block *block, int x, int y);
+
+//# get_block_tile_visible_color
+uint8_t get_block_tile_visible_color(Block *block, int x, int y);
+
 //# add_stat_to_block
 //#
 //# Returns an index into the stat array of the block if successful.

@@ -1,6 +1,7 @@
 #include "common.h"
 #include "block.h"
 #include "stat.h"
+#include "tile.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -304,6 +305,105 @@ void TEST_add_stat_to_block(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+uint8_t get_block_tile_visible_char(Block *block, int x, int y)
+{
+	if(!coords_in_range_of_block(block, x, y))
+	{
+		return 0x20;
+	}
+
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(x < block->width);
+	assert(y < block->height);
+
+	Tile *tile = &block->tile_data[x*block->height + y];
+	Stat *stat = NULL;
+
+	return get_tile_char(tile, stat, block, x, y);
+}
+
+uint8_t get_block_tile_visible_color(Block *block, int x, int y)
+{
+	if(!coords_in_range_of_block(block, x, y))
+	{
+		return 0x10;
+	}
+
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(x < block->width);
+	assert(y < block->height);
+
+	Tile *tile = &block->tile_data[x*block->height + y];
+	Stat *stat = NULL;
+
+	return get_tile_color(tile, stat, block, x, y);
+}
+
+static void TEST_get_block_tile_visible_char_color(void)
+{
+	Block *block = new_block(10, 10);
+	assert(block != NULL);
+
+	set_block_tile_raw_type(block, 0, 0, T_PLAYER);
+	set_block_tile_raw_color(block, 0, 0, 0x1F);
+	set_block_tile_raw_type(block, 1, 0, T_EMPTY);
+	set_block_tile_raw_color(block, 1, 0, 0x70);
+	set_block_tile_raw_type(block, 2, 0, T_LION);
+	set_block_tile_raw_color(block, 2, 0, 0x0C);
+	set_block_tile_raw_type(block, 3, 0, T_LION);
+	set_block_tile_raw_color(block, 3, 0, 0x06);
+
+	set_block_tile_raw_type(block, 0, 1, T_TEXT_RED);
+	set_block_tile_raw_color(block, 0, 1, 0x21);
+	set_block_tile_raw_type(block, 1, 1, T_TEXT_BLUE);
+	set_block_tile_raw_color(block, 1, 1, 0x21);
+	set_block_tile_raw_type(block, 2, 1, T_TEXT_BLUE);
+	set_block_tile_raw_color(block, 2, 1, 0x3F);
+	set_block_tile_raw_type(block, 3, 1, T_TEXT_BLACK);
+	set_block_tile_raw_color(block, 3, 1, 0x21);
+
+	tap_ok(get_block_tile_visible_char(block, 0, 0) == 0x02,
+		"Tile char: Player");
+	tap_ok(get_block_tile_visible_color(block, 0, 0) == 0x1F,
+		"Tile color: Player");
+	tap_ok(get_block_tile_visible_char(block, 1, 0) == 0x20,
+		"Tile char: Empty");
+	tap_ok(get_block_tile_visible_color(block, 1, 0) == 0x07,
+		"Tile color: Empty");
+	tap_ok(get_block_tile_visible_char(block, 2, 0) == 0xEA,
+		"Tile char: Lion Red");
+	tap_ok(get_block_tile_visible_color(block, 2, 0) == 0x0C,
+		"Tile color: Lion Red");
+	tap_ok(get_block_tile_visible_char(block, 3, 0) == 0xEA,
+		"Tile char: Lion Brown");
+	tap_ok(get_block_tile_visible_color(block, 3, 0) == 0x06,
+		"Tile color: Lion Brown");
+
+	// Yep, more text.
+	tap_ok(get_block_tile_visible_char(block, 0, 1) == 0x21,
+		"Tile char: Text Red, 0x21");
+	tap_ok(get_block_tile_visible_color(block, 0, 1) == 0x4F,
+		"Tile color: Text Red, 0x21");
+	tap_ok(get_block_tile_visible_char(block, 1, 1) == 0x21,
+		"Tile char: Text Blue, 0x21");
+	tap_ok(get_block_tile_visible_color(block, 1, 1) == 0x1F,
+		"Tile color: Text Blue, 0x21");
+	tap_ok(get_block_tile_visible_char(block, 2, 1) == 0x3F,
+		"Tile char: Text Blue, 0x3F");
+	tap_ok(get_block_tile_visible_color(block, 2, 1) == 0x1F,
+		"Tile color: Text Blue, 0x3F");
+	tap_ok(get_block_tile_visible_char(block, 3, 1) == 0x21,
+		"Tile char: Text Black, 0x21");
+	tap_ok(get_block_tile_visible_color(block, 3, 1) == 0x0F,
+		"Tile color: Text Black, 0x21");
+
+	free_block(&block);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void block_tests(void)
 {
 	tap_ok(true, "Block test hookup check");
@@ -311,4 +411,5 @@ void block_tests(void)
 	TEST_getset_block_tile_raw_type();
 	TEST_getset_block_tile_raw_color();
 	TEST_add_stat_to_block();
+	TEST_get_block_tile_visible_char_color();
 }

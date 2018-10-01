@@ -90,7 +90,7 @@ static void TEST_get_tile_name_from_type(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
-char get_tile_char(const Tile *tile, const Stat *stat,
+uint8_t get_tile_char(const Tile *tile, const Stat *stat,
 	const Block *block, int x, int y)
 {
 	// Text uses the colour for the character.
@@ -115,23 +115,23 @@ char get_tile_char(const Tile *tile, const Stat *stat,
 static void TEST_get_tile_char(void)
 {
 	Tile player1 = {.type = T_PLAYER, .color = 0x1F};
-	tap_ok(get_tile_char(&player1, NULL, NULL, 0, 0) == '\x02',
+	tap_ok(get_tile_char(&player1, NULL, NULL, 0, 0) == 0x02,
 		"Tile char: Player");
 	Tile empty1 = {.type = T_EMPTY, .color = 0x70};
-	tap_ok(get_tile_char(&empty1, NULL, NULL, 0, 0) == '\x20',
+	tap_ok(get_tile_char(&empty1, NULL, NULL, 0, 0) == 0x20,
 		"Tile char: Empty");
 
 	// Text is always fun.
 	Tile textblue1 = {.type = T_TEXT_BLUE, .color = 0x21};
-	tap_ok(get_tile_char(&textblue1, NULL, NULL, 0, 0) == '\x21',
+	tap_ok(get_tile_char(&textblue1, NULL, NULL, 0, 0) == 0x21,
 		"Tile char: Text Blue, 0x21");
 	Tile textblue2 = {.type = T_TEXT_BLUE, .color = 0x3F};
-	tap_ok(get_tile_char(&textblue2, NULL, NULL, 0, 0) == '\x3F',
+	tap_ok(get_tile_char(&textblue2, NULL, NULL, 0, 0) == 0x3F,
 		"Tile char: Text Blue, 0x3F");
 
 	// Lines need neighbour info.
 	Tile line1 = {.type = T_LINE, .color = 0x0F};
-	tap_ok(get_tile_char(&line1, NULL, NULL, 0, 0) == '\xCE',
+	tap_ok(get_tile_char(&line1, NULL, NULL, 0, 0) == 0xCE,
 		"Tile char: Line, NULL block");
 }
 
