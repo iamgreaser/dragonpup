@@ -305,6 +305,14 @@ void TEST_add_stat_to_block(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+// By the way, this is located at the very end of the EXE on both counts.
+static const uint8_t line_chars[16] = {
+	0xF9, 0xD0, 0xD2, 0xBA,
+	0xB5, 0xBC, 0xBB, 0xB9,
+	0xC6, 0xC8, 0xC9, 0xCC,
+	0xCD, 0xCA, 0xCB, 0xCE,
+};
+
 uint8_t get_block_tile_visible_char(Block *block, int x, int y)
 {
 	if(!coords_in_range_of_block(block, x, y))
@@ -319,6 +327,23 @@ uint8_t get_block_tile_visible_char(Block *block, int x, int y)
 
 	Tile *tile = &block->tile_data[x*block->height + y];
 	Stat *stat = NULL;
+
+	if(tile->type == T_LINE)
+	{
+		tile_type tyn = get_block_tile_raw_type(block, x, y-1);
+		tile_type typ = get_block_tile_raw_type(block, x, y+1);
+		tile_type txn = get_block_tile_raw_type(block, x-1, y);
+		tile_type txp = get_block_tile_raw_type(block, x+1, y);
+
+		int cidx = 0;
+		if(tyn == T_LINE || tyn == T_BOARD_EDGE) { cidx |= 0x1; }
+		if(typ == T_LINE || typ == T_BOARD_EDGE) { cidx |= 0x2; }
+		if(txn == T_LINE || txn == T_BOARD_EDGE) { cidx |= 0x4; }
+		if(txp == T_LINE || txp == T_BOARD_EDGE) { cidx |= 0x8; }
+
+		assert(cidx >= 0 && cidx < 16);
+		return line_chars[cidx];
+	}
 
 	return get_tile_char(tile, stat, block, x, y);
 }
@@ -364,6 +389,16 @@ static void TEST_get_block_tile_visible_char_color(void)
 	set_block_tile_raw_type(block, 3, 1, T_TEXT_BLACK);
 	set_block_tile_raw_color(block, 3, 1, 0x21);
 
+	// Get some line tests in.
+	for(int y = 4; y <= 6; y++)
+	{
+		for(int x = 4; x <= 6; x++)
+		{
+			set_block_tile_raw_type(block, x, y, T_LINE);
+			set_block_tile_raw_color(block, x, y, y);
+		}
+	}
+
 	tap_ok(get_block_tile_visible_char(block, 0, 0) == 0x02,
 		"Tile char: Player");
 	tap_ok(get_block_tile_visible_color(block, 0, 0) == 0x1F,
@@ -398,6 +433,22 @@ static void TEST_get_block_tile_visible_char_color(void)
 		"Tile char: Text Black, 0x21");
 	tap_ok(get_block_tile_visible_color(block, 3, 1) == 0x0F,
 		"Tile color: Text Black, 0x21");
+
+	// Lines!
+	// Every char must be different.
+	for(int y = 4; y <= 6-1; y++)
+	{
+		for(int x = 4; x <= 6-1; x++)
+		{
+			int c00 = get_block_tile_visible_char(block, x+0, y+0);
+			int c01 = get_block_tile_visible_char(block, x+0, y+1);
+			int c10 = get_block_tile_visible_char(block, x+1, y+0);
+			int c11 = get_block_tile_visible_char(block, x+1, y+1);
+			tap_ok(c00 != c01, "Line char differences 01");
+			tap_ok(c00 != c10, "Line char differences 10");
+			tap_ok(c00 != c11, "Line char differences 11");
+		}
+	}
 
 	free_block(&block);
 }
