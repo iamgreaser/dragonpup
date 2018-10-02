@@ -305,6 +305,52 @@ void TEST_add_stat_to_block(void)
 
 ////////////////////////////////////////////////////////////////////////////
 
+int get_stat_index_at_block_since(Block *block, int x, int y, int prev)
+{
+	for(int i = prev+1; i < block->stat_count; i++)
+	{
+		if(block->stats[i]->x == x && block->stats[i]->y == y)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+static void TEST_get_stat_index_at_block_since(void)
+{
+	Block *block = new_block(3, 3);
+
+	// Add one stat
+	assert(block != NULL);
+	set_block_tile_raw_type(block, 2, 1, T_PLAYER);
+	int sidx0 = add_stat_to_block(block, 2, 1);
+	Stat *stat0 = block->stats[sidx0];
+	set_block_tile_raw_type(block, 0, 1, T_LION);
+	int sidx1 = add_stat_to_block(block, 0, 1);
+	Stat *stat1 = block->stats[sidx1];
+	int sidx2 = add_stat_to_block(block, 2, 1);
+	Stat *stat2 = block->stats[sidx2];
+
+	tap_ok(get_stat_index_at_block_since(block, 1, 1, -1) == -1,
+		"Stat block index for no stat is -1");
+	tap_ok(get_stat_index_at_block_since(block, 2, 1, -1) == sidx0,
+		"Stat block index for player");
+	tap_ok(get_stat_index_at_block_since(block, 0, 1, -1) == sidx1,
+		"Stat block index for lion");
+	tap_ok(get_stat_index_at_block_since(block, 2, 1, sidx0) == sidx2,
+		"Stat block index for player after first player");
+	tap_ok(get_stat_index_at_block_since(block, 0, 1, sidx1) == -1,
+		"Stat block index for lion after first player");
+	tap_ok(get_stat_index_at_block_since(block, 2, 1, sidx2) == -1,
+		"Stat block index for player after second player");
+
+	free_block(&block);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 // By the way, this is located at the very end of the EXE on both counts.
 static const uint8_t line_chars[16] = {
 	0xF9, 0xD0, 0xD2, 0xBA,
@@ -523,5 +569,6 @@ void block_tests(void)
 	TEST_getset_block_tile_raw_type();
 	TEST_getset_block_tile_raw_color();
 	TEST_add_stat_to_block();
+	TEST_get_stat_index_at_block_since();
 	TEST_get_block_tile_visible_char_color();
 }
