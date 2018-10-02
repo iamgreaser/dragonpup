@@ -86,6 +86,19 @@ int main(int argc, char *argv[])
 		Board *board = world->boards[b];
 		Block *block = board->block;
 		printf("%s:\n", board->name.dat);
+#if 0
+		printf("%d\n", board->block->stat_count);
+		for(int i = 0; i < block->stat_count; i++)
+		{
+			printf("%3d,%3d: %3d %3d %3d\n",
+				board->block->stats[i]->x,
+				board->block->stats[i]->y,
+				board->block->stats[i]->p1,
+				board->block->stats[i]->p2,
+				board->block->stats[i]->p3);
+		}
+#endif
+
 		for(int y = 0; y < block->height; y++)
 		{
 			for(int x = 0; x < block->width; x++)

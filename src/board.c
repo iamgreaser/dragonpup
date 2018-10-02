@@ -187,8 +187,8 @@ Board *read_board(IoStream *stream)
 	board->player_enter_x = io_read_u8(substream);
 	board->player_enter_y = io_read_u8(substream);
 #if SUPER_ZZT
-	board->camera_x = io_read_u8(substream);
-	board->camera_y = io_read_u8(substream);
+	board->camera_x = io_read_s16le(substream);
+	board->camera_y = io_read_s16le(substream);
 #endif /* SUPER_ZZT */
 	board->time_limit = io_read_s16le(substream);
 
@@ -310,7 +310,8 @@ void FIXTURE_read_board(uint8_t **pbuf, size_t *pbytes)
 
 		3, 1, // Player enter x, y
 #if SUPER_ZZT
-		2, 1, // Camera x, y
+		2, 0, // Camera x
+		1, 0, // Camera y
 #endif /* SUPER_ZZT */
 
 		0x00, 0x04, // Time limit
