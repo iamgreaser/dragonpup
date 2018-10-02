@@ -382,7 +382,9 @@ uint8_t get_block_tile_visible_char(Block *block, int x, int y)
 	assert(y < block->height);
 
 	Tile *tile = &block->tile_data[x*block->height + y];
-	Stat *stat = NULL;
+	int sidx = get_stat_index_at_block_since(block, x, y, -1);
+	assert(sidx >= -1 && sidx < block->stat_count);
+	Stat *stat = (sidx >= 0 ? block->stats[sidx] : NULL);
 
 	if(tile->type == T_LINE)
 	{
@@ -454,6 +456,13 @@ static void TEST_get_block_tile_visible_char_color(void)
 	set_block_tile_raw_color(block, 2, 0, 0x0C);
 	set_block_tile_raw_type(block, 3, 0, T_LION);
 	set_block_tile_raw_color(block, 3, 0, 0x06);
+	set_block_tile_raw_type(block, 4, 0, T_OBJECT);
+	set_block_tile_raw_color(block, 4, 0, 0x0F);
+	int sidx0 = add_stat_to_block(block, 4, 0);
+	assert(sidx0 >= 0 && sidx0 < block->stat_count);
+	Stat *stat0 = block->stats[sidx0];
+	assert(stat0 != NULL);
+	stat0->p1 = 0x21;
 
 	set_block_tile_raw_type(block, 0, 1, T_TEXT_RED);
 	set_block_tile_raw_color(block, 0, 1, 0x21);
@@ -502,6 +511,10 @@ static void TEST_get_block_tile_visible_char_color(void)
 		"Tile char: Lion Brown");
 	tap_ok(get_block_tile_visible_color(block, 3, 0) == 0x06,
 		"Tile color: Lion Brown");
+	tap_ok(get_block_tile_visible_char(block, 4, 0) == 0x21,
+		"Tile char: Object 0");
+	tap_ok(get_block_tile_visible_color(block, 4, 0) == 0x0F,
+		"Tile color: Object 0");
 
 	// Yep, more text.
 	tap_ok(get_block_tile_visible_char(block, 0, 1) == 0x21,

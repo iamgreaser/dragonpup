@@ -99,6 +99,12 @@ uint8_t get_tile_char(const Tile *tile, const Stat *stat,
 		return tile->color;
 	}
 
+	// Objects grab their char from their stats if they exist.
+	if(tile->type == T_OBJECT && stat != NULL)
+	{
+		return stat->p1;
+	}
+
 	// Default switch block coming through!
 	switch(tile->type)
 	{
